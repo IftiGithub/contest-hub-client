@@ -39,8 +39,9 @@ const Navbar = () => {
                     <li><NavLink to={`extra`}>Extra Section</NavLink></li>
                 </ul>
             </div>
-            <div className="navbar-end">
-                <a className="btn">Button</a>
+            <div className="navbar-end gap-2">
+                <Link to={`/login`} className="btn">Login</Link>
+                <Link to={`/register`} className="btn">Register</Link>
             </div>
         </div>
     );
