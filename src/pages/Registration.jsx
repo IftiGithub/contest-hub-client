@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { useForm } from "react-hook-form";
 import AuthContext from "../providers/AuthContext";
 import { updateProfile } from "firebase/auth";
+import toast from "react-hot-toast";
 
 const Registration = () => {
     const { register, handleSubmit, formState: { errors } } = useForm();
@@ -15,23 +16,23 @@ const Registration = () => {
             .then(res => {
                 const user = res.user;
 
-                // Update display name & photo URL
+                // Update profile
                 updateProfile(user, {
                     displayName: name,
                     photoURL: photoURL
                 })
                     .then(() => {
                         console.log("User updated:", user);
-                        alert("Registration successful!");
+                        toast.success("Registration successful!");
                     })
                     .catch(err => {
                         console.error("Error updating profile:", err);
-                        alert(err.message);
+                        toast.error(err.message);
                     });
             })
             .catch(err => {
                 console.error("Error creating user:", err);
-                alert(err.message);
+                toast.error(err.message);
             });
     };
 
@@ -41,11 +42,11 @@ const Registration = () => {
             .then(res => {
                 const user = res.user;
                 console.log("Google Sign-In User:", user);
-                alert("Google Sign-up successful!");
+                toast.success("Google Sign-up successful!");
             })
             .catch(err => {
                 console.error("Google Login Error:", err);
-                alert(err.message);
+                toast.error(err.message);
             });
     };
 

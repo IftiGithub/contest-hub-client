@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import { useForm } from "react-hook-form";
 import AuthContext from "../providers/AuthContext";
+import toast from "react-hot-toast";
 
 const Login = () => {
     const { login, googleSignIn } = useContext(AuthContext);
@@ -15,8 +16,9 @@ const Login = () => {
         try {
             const result = await login(data.email, data.password);
             console.log("Logged in user:", result.user);
+            toast.success("Login successful!");
         } catch (error) {
-            alert(error.message);
+            toast.error(error.message);
         }
     };
 
@@ -24,8 +26,9 @@ const Login = () => {
         try {
             const result = await googleSignIn();
             console.log("Google Signed-in:", result.user);
+            toast.success("Google login successful!");
         } catch (error) {
-            alert(error.message);
+            toast.error(error.message);
         }
     };
 
