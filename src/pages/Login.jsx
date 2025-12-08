@@ -1,8 +1,9 @@
 import React, { useContext } from "react";
 import { useForm } from "react-hook-form";
 import AuthContext from "../providers/AuthContext";
+
 const Login = () => {
-    const { login } = useContext(AuthContext);
+    const { login, googleSignIn } = useContext(AuthContext);
 
     const {
         register,
@@ -15,7 +16,15 @@ const Login = () => {
             const result = await login(data.email, data.password);
             console.log("Logged in user:", result.user);
         } catch (error) {
-            console.error("Login Error:", error.message);
+            alert(error.message);
+        }
+    };
+
+    const handleGoogle = async () => {
+        try {
+            const result = await googleSignIn();
+            console.log("Google Signed-in:", result.user);
+        } catch (error) {
             alert(error.message);
         }
     };
@@ -24,11 +33,16 @@ const Login = () => {
         <div className="hero bg-base-200 min-h-screen">
             <div className="hero-content flex-col lg:flex-row-reverse">
 
+                {/* Heading */}
                 <div className="text-center lg:text-left">
                     <h1 className="text-5xl font-bold">Login now!</h1>
+                    <p className="py-6 max-w-md">
+                        Access your account to join contests and manage your dashboard.
+                    </p>
                 </div>
 
-                <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
+                {/* Login Card */}
+                <div className="card bg-base-100 w-full max-w-sm shadow-2xl">
                     <div className="card-body">
 
                         <form onSubmit={handleSubmit(onSubmit)}>
@@ -76,8 +90,18 @@ const Login = () => {
                             <button className="btn btn-neutral mt-4 w-full" type="submit">
                                 Login
                             </button>
-
                         </form>
+
+                        {/* Divider */}
+                        <div className="divider">OR</div>
+
+                        {/* Google Login */}
+                        <button
+                            className="btn btn-outline w-full"
+                            onClick={handleGoogle}
+                        >
+                            Continue with Google
+                        </button>
 
                     </div>
                 </div>

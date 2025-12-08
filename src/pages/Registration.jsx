@@ -5,8 +5,9 @@ import { updateProfile } from "firebase/auth";
 
 const Registration = () => {
     const { register, handleSubmit, formState: { errors } } = useForm();
-    const { createUser } = useContext(AuthContext);
+    const { createUser, googleSignIn } = useContext(AuthContext);
 
+    // --- EMAIL/PASSWORD REGISTRATION ---
     const onSubmit = (data) => {
         const { email, password, name, photoURL } = data;
 
@@ -20,7 +21,7 @@ const Registration = () => {
                     photoURL: photoURL
                 })
                     .then(() => {
-                        console.log(user);
+                        console.log("User updated:", user);
                         alert("Registration successful!");
                     })
                     .catch(err => {
@@ -34,15 +35,43 @@ const Registration = () => {
             });
     };
 
+    // --- GOOGLE SIGNUP ---
+    const handleGoogleSignup = () => {
+        googleSignIn()
+            .then(res => {
+                const user = res.user;
+                console.log("Google Sign-In User:", user);
+                alert("Google Sign-up successful!");
+            })
+            .catch(err => {
+                console.error("Google Login Error:", err);
+                alert(err.message);
+            });
+    };
+
     return (
         <div className="hero bg-base-200 min-h-screen">
             <div className="hero-content flex-col lg:flex-row-reverse">
+
                 <div className="text-center lg:text-left">
                     <h1 className="text-5xl font-bold">Register Now!</h1>
                 </div>
 
                 <div className="card bg-base-100 w-full max-w-sm shadow-2xl">
                     <div className="card-body">
+
+                        {/* GOOGLE SIGNUP BUTTON */}
+                        <button
+                            type="button"
+                            onClick={handleGoogleSignup}
+                            className="btn btn-outline btn-primary w-full mb-4"
+                        >
+                            Continue with Google
+                        </button>
+
+                        <div className="divider">OR</div>
+
+                        {/* EMAIL FORM */}
                         <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
 
                             {/* NAME */}
@@ -96,10 +125,15 @@ const Registration = () => {
                                 {errors.photoURL && <span className="text-red-500 text-sm">{errors.photoURL.message}</span>}
                             </div>
 
-                            <button className="btn btn-neutral w-full mt-4" type="submit">Register</button>
+                            {/* SUBMIT BUTTON */}
+                            <button className="btn btn-neutral w-full mt-4" type="submit">
+                                Register
+                            </button>
                         </form>
+
                     </div>
                 </div>
+
             </div>
         </div>
     );
