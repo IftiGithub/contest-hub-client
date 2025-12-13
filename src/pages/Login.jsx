@@ -2,6 +2,8 @@ import React, { useContext } from "react";
 import { useForm } from "react-hook-form";
 import AuthContext from "../providers/AuthContext";
 import toast from "react-hot-toast";
+import { useMutation } from "@tanstack/react-query";
+import { getUserByEmail, saveUser } from "../api/user_api";
 
 const Login = () => {
     const { login, googleSignIn } = useContext(AuthContext);
@@ -22,15 +24,39 @@ const Login = () => {
         }
     };
 
+    const saveUserMutation = useMutation({
+        mutationFn: saveUser,
+        onSuccess: () => {
+            toast.success("User saved to DB successfully!");
+        },
+        onError: (err) => {
+            toast.error(err.message);
+        },
+    });
+
+
     const handleGoogle = async () => {
         try {
             const result = await googleSignIn();
-            console.log("Google Signed-in:", result.user);
+            const user = result.user;
+
             toast.success("Google login successful!");
+
+            // Fetch user from DB using TanStack Query
+            const dbUser = await getUserByEmail(user.email);
+
+            if (!dbUser?.email) {
+                // User does not exist → save to DB
+                saveUserMutation.mutate(user);
+            } else {
+                console.log("User already exists in DB");
+            }
+
         } catch (error) {
             toast.error(error.message);
         }
     };
+
 
     return (
         <div className="hero bg-base-200 min-h-screen">
