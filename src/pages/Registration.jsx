@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import AuthContext from "../providers/AuthContext";
 import { updateProfile } from "firebase/auth";
 import toast from "react-hot-toast";
+import { saveUser } from "../api/user_api";
 
 const Registration = () => {
     const { register, handleSubmit, formState: { errors } } = useForm();
@@ -22,7 +23,8 @@ const Registration = () => {
                     photoURL: photoURL
                 })
                     .then(() => {
-                        console.log("User updated:", user);
+                        //console.log("User updated:", user);
+                        saveUser(user)
                         toast.success("Registration successful!");
                     })
                     .catch(err => {
@@ -42,6 +44,7 @@ const Registration = () => {
             .then(res => {
                 const user = res.user;
                 console.log("Google Sign-In User:", user);
+                saveUser(user)
                 toast.success("Google Sign-up successful!");
             })
             .catch(err => {
