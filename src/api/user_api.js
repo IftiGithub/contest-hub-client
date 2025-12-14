@@ -27,3 +27,16 @@ export const getUserByEmail = async (email) => {
     return res.json();
 };
 
+export const updateUser = async (email, updatedData) => {
+    const res = await fetch(`http://localhost:3000/users/${email}`, {
+        method: "PUT",
+        headers: {
+            "content-type": "application/json",
+        },
+        body: JSON.stringify(updatedData),
+    });
+
+    return res.json();
+};
+
+
