@@ -39,6 +39,7 @@ const Login = () => {
         try {
             const result = await googleSignIn();
             const user = result.user;
+            console.log(user);
 
             toast.success("Google login successful!");
 
