@@ -9,3 +9,9 @@ export const getWinningContests = async (email) => {
     const res = await fetch(`http://localhost:3000/winning-contests/${email}`);
     return res.json();
 };
+
+export const getCreatorContests = async (email) => {
+    const res = await fetch(`http://localhost:3000/contests/creator/${email}`);
+    return res.json();
+};
+
