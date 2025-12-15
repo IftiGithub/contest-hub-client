@@ -15,3 +15,25 @@ export const getCreatorContests = async (email) => {
     return res.json();
 };
 
+export const getAllContestsAdmin = async () => {
+    const res = await fetch("http://localhost:3000/admin/contests");
+    return res.json();
+};
+
+export const updateContestStatus = async (id, status) => {
+    const res = await fetch(`http://localhost:3000/admin/contests/${id}`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ status }),
+    });
+    return res.json();
+};
+
+export const deleteContest = async (id) => {
+    const res = await fetch(`http://localhost:3000/admin/contests/${id}`, {
+        method: "DELETE",
+    });
+    return res.json();
+};
+
+
