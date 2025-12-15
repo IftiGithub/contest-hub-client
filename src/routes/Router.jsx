@@ -14,36 +14,41 @@ import AddContest from "../pages/Dashboard/Creator/AddContest";
 import MyWinningContests from "../pages/Dashboard/User/MyWinningContests";
 import MyParticipatedContests from "../pages/Dashboard/User/MyParticipatedContests";
 import MyProfile from "../pages/Dashboard/User/MyProfile";
-
+import ContestDetails from "../pages/ContestDetails";
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <Root></Root>,
+    element: <Root />,
     children: [
       {
-        index: true,
-        path: '/',
+        index: true,      // Home page
         Component: Home,
       },
       {
-        path: 'all-contest',
+        path: "all-contest",
         Component: AllContest,
-
       },
       {
-        path: 'extra',
+        path: "extra",
         Component: ExtraSection,
-
       },
       {
-        path: 'login',
-        Component: Login
+        path: "login",
+        Component: Login,
       },
       {
-        path: 'register',
-        Component: Registration
-      }
-    ]
+        path: "register",
+        Component: Registration,
+      },
+      {
+        path: "contest/:id",   // Contest details route
+        element: (
+          <PrivateRoute>
+            <ContestDetails />
+          </PrivateRoute>
+        ),
+      },
+    ],
   },
   {
     path: "/dashboard",
