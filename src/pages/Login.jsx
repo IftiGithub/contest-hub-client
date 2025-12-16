@@ -4,9 +4,15 @@ import AuthContext from "../providers/AuthContext";
 import toast from "react-hot-toast";
 import { useMutation } from "@tanstack/react-query";
 import { getUserByEmail, saveUser } from "../api/user_api";
+import { useLocation, useNavigate } from "react-router";
 
 const Login = () => {
     const { login, googleSignIn } = useContext(AuthContext);
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    // 👇 where user wanted to go before login
+    const from = location.state?.from?.pathname || "/";
 
     const {
         register,
@@ -18,7 +24,12 @@ const Login = () => {
         try {
             const result = await login(data.email, data.password);
             console.log("Logged in user:", result.user);
+
             toast.success("Login successful!");
+
+            // ✅ Redirect after login
+            navigate(from, { replace: true });
+
         } catch (error) {
             toast.error(error.message);
         }
@@ -39,24 +50,23 @@ const Login = () => {
         try {
             const result = await googleSignIn();
             const user = result.user;
-            console.log(user);
 
             toast.success("Google login successful!");
 
-            // Fetch user from DB using TanStack Query
             const dbUser = await getUserByEmail(user.email);
 
             if (!dbUser?.email) {
-                // User does not exist → save to DB
                 saveUserMutation.mutate(user);
-            } else {
-                console.log("User already exists in DB");
             }
+
+            // ✅ Redirect after Google login
+            navigate(from, { replace: true });
 
         } catch (error) {
             toast.error(error.message);
         }
     };
+
 
 
     return (
