@@ -4,11 +4,14 @@ import { useContext } from "react";
 import Loading from "./Loading.jsx";
 import { getContestById } from "../api/contest_api.js";
 import AuthContext from "../providers/AuthContext.jsx";
+import toast from "react-hot-toast";
 
 const ContestDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { user } = useContext(AuthContext);
+    const isJoined = user && contest.participants.includes(user.email);
+
 
     const { data: contest, isLoading } = useQuery({
         queryKey: ["contest", id],
@@ -22,14 +25,38 @@ const ContestDetails = () => {
         return <p className="text-center mt-10 text-red-500">Contest not found!</p>;
     }
 
-    const handleRegister = () => {
+    const handleRegister = async () => {
         if (!user) {
             navigate("/login");
             return;
         }
-        // TODO: Integrate payment logic here
-        alert("Payment / Registration logic goes here");
+
+        // Prevent creator from joining
+        if (contest.creatorEmail === user.email) {
+            return toast.error("You cannot join your own contest");
+        }
+
+        // Prevent duplicate join
+        if (contest.participants.includes(user.email)) {
+            return toast.error("You already joined this contest");
+        }
+
+        try {
+            await fetch(`http://localhost:3000/contests/register/${id}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email: user.email }),
+            });
+
+            alert("Successfully registered!");
+            navigate(0); // refresh page data
+        } catch (error) {
+            toast.error("Registration failed",error);
+        }
     };
+
 
     const isContestEnded = new Date(contest.deadline) < new Date();
 
@@ -61,13 +88,31 @@ const ContestDetails = () => {
             )}
 
             {/* Action Button */}
-            <button
-                className={`btn btn-primary ${isContestEnded ? "btn-disabled" : ""}`}
-                onClick={handleRegister}
-                disabled={isContestEnded}
-            >
-                {isContestEnded ? "Contest Ended" : "Register / Pay"}
-            </button>
+            {/* Action Section */}
+            {!user && (
+                <button className="btn btn-primary" onClick={() => navigate("/login")}>
+                    Login to Join
+                </button>
+            )}
+
+            {user && !isJoined && !isContestEnded && (
+                <button className="btn btn-primary" onClick={handleRegister}>
+                    Register / Pay
+                </button>
+            )}
+
+            {user && isJoined && !isContestEnded && (
+                <div className="bg-blue-100 p-4 rounded-lg">
+                    <p className="font-semibold text-blue-700">
+                        ✅ You have already joined this contest
+                    </p>
+                </div>
+            )}
+
+            {isContestEnded && (
+                <button className="btn btn-disabled">Contest Ended</button>
+            )}
+
         </div>
     );
 };
