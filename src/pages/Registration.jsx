@@ -4,10 +4,12 @@ import AuthContext from "../providers/AuthContext";
 import { updateProfile } from "firebase/auth";
 import toast from "react-hot-toast";
 import { saveUser } from "../api/user_api";
+import { Navigate, useNavigate } from "react-router";
 
 const Registration = () => {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const { createUser, googleSignIn } = useContext(AuthContext);
+    const Navigate = useNavigate()
 
     // --- EMAIL/PASSWORD REGISTRATION ---
     const onSubmit = (data) => {
@@ -26,6 +28,9 @@ const Registration = () => {
                         //console.log("User updated:", user);
                         saveUser(user)
                         toast.success("Registration successful!");
+                        setTimeout(() => {
+                            Navigate('/')
+                        }, 1000)
                     })
                     .catch(err => {
                         console.error("Error updating profile:", err);
@@ -46,6 +51,9 @@ const Registration = () => {
                 console.log("Google Sign-In User:", user);
                 saveUser(user)
                 toast.success("Google Sign-up successful!");
+                setTimeout(() => {
+                    Navigate('/')
+                }, 1000)
             })
             .catch(err => {
                 console.error("Google Login Error:", err);

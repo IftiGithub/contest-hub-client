@@ -1,3 +1,4 @@
+import { secureFetch } from "../api/secureFetch";
 export const saveUser = async (user) => {
     const userInfo = {
         name: user.displayName,
@@ -17,7 +18,7 @@ export const saveUser = async (user) => {
 };
 
 export const getUserByEmail = async (email) => {
-    const res = await fetch(`http://localhost:3000/users/${email}`);
+    const res = await secureFetch(`http://localhost:3000/users/${email}`);
 
     if (!res.ok) {
         // if 404, return null instead of throwing
@@ -28,7 +29,7 @@ export const getUserByEmail = async (email) => {
 };
 
 export const updateUser = async (email, updatedData) => {
-    const res = await fetch(`http://localhost:3000/users/${email}`, {
+    const res = await secureFetch(`http://localhost:3000/users/${email}`, {
         method: "PUT",
         headers: {
             "content-type": "application/json",
@@ -42,13 +43,13 @@ const API = "http://localhost:3000";
 
 // 🔥 Get all users
 export const getAllUsers = async () => {
-    const res = await fetch(`${API}/admin/users`);
+    const res = await secureFetch(`${API}/admin/users`);
     return res.json();
 };
 
 // 🔥 Update user role
 export const updateUserRole = async ({ id, role }) => {
-    const res = await fetch(`${API}/admin/users/role/${id}`, {
+    const res = await secureFetch(`${API}/admin/users/role/${id}`, {
         method: "PATCH",
         headers: {
             "Content-Type": "application/json",

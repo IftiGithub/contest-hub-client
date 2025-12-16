@@ -32,6 +32,10 @@ const DashboardLayout = () => {
 
                     {/* ===== USER ===== */}
                     <li>
+                        <NavLink to="/">Home</NavLink>
+                    </li>
+
+                    <li>
                         <NavLink to="profile">My Profile</NavLink>
                     </li>
                     <li>

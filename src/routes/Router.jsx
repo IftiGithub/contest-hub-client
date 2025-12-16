@@ -58,6 +58,10 @@ export const router = createBrowserRouter([
       </PrivateRoute>
     ),
     children: [
+      {
+        index: true,
+        element: <p>Welcome to your Dashboard.</p>,
+      },
       { path: "profile", element: <MyProfile /> },
       { path: "participated", element: <MyParticipatedContests /> },
       { path: "winning", element: <MyWinningContests /> },
