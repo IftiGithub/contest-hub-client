@@ -10,7 +10,7 @@ const ContestDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { user } = useContext(AuthContext);
-    const isJoined = user && contest.participants.includes(user.email);
+    //const isJoined = user && contest.participants.includes(user.email);
 
 
     const { data: contest, isLoading } = useQuery({
@@ -50,10 +50,14 @@ const ContestDetails = () => {
                 body: JSON.stringify({ email: user.email }),
             });
 
-            alert("Successfully registered!");
-            navigate(0); // refresh page data
+            toast.success("Successfully registered!");
+
+            setTimeout(() => {
+                navigate(0); // refresh page data
+            }, 1200); // 1.2 seconds delay
+
         } catch (error) {
-            toast.error("Registration failed",error);
+            toast.error("Registration failed", error);
         }
     };
 
@@ -89,29 +93,23 @@ const ContestDetails = () => {
 
             {/* Action Button */}
             {/* Action Section */}
-            {!user && (
-                <button className="btn btn-primary" onClick={() => navigate("/login")}>
-                    Login to Join
-                </button>
-            )}
-
-            {user && !isJoined && !isContestEnded && (
-                <button className="btn btn-primary" onClick={handleRegister}>
-                    Register / Pay
-                </button>
-            )}
-
-            {user && isJoined && !isContestEnded && (
-                <div className="bg-blue-100 p-4 rounded-lg">
-                    <p className="font-semibold text-blue-700">
-                        ✅ You have already joined this contest
-                    </p>
-                </div>
-            )}
-
-            {isContestEnded && (
-                <button className="btn btn-disabled">Contest Ended</button>
-            )}
+            <button
+                className="btn btn-primary"
+                onClick={handleRegister}
+                disabled={
+                    isContestEnded ||
+                    contest.participants.includes(user?.email) ||
+                    contest.creatorEmail === user?.email
+                }
+            >
+                {isContestEnded
+                    ? "Contest Ended"
+                    : contest.participants.includes(user?.email)
+                        ? "Already Joined"
+                        : contest.creatorEmail === user?.email
+                            ? "Creator Cannot Join"
+                            : "Register / Pay"}
+            </button>
 
         </div>
     );
