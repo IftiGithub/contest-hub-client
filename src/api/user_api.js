@@ -38,5 +38,25 @@ export const updateUser = async (email, updatedData) => {
 
     return res.json();
 };
+const API = "http://localhost:3000";
+
+// 🔥 Get all users
+export const getAllUsers = async () => {
+    const res = await fetch(`${API}/admin/users`);
+    return res.json();
+};
+
+// 🔥 Update user role
+export const updateUserRole = async ({ id, role }) => {
+    const res = await fetch(`${API}/admin/users/role/${id}`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ role }),
+    });
+    return res.json();
+};
+
 
 
