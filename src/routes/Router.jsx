@@ -15,6 +15,8 @@ import MyWinningContests from "../pages/Dashboard/User/MyWinningContests";
 import MyParticipatedContests from "../pages/Dashboard/User/MyParticipatedContests";
 import MyProfile from "../pages/Dashboard/User/MyProfile";
 import ContestDetails from "../pages/ContestDetails";
+import CreatorRoute from "./CreatorRoute";
+import AdminRoute from "./AdminRoute";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -58,21 +60,45 @@ export const router = createBrowserRouter([
       </PrivateRoute>
     ),
     children: [
-      {
-        index: true,
-        element: <p>Welcome to your Dashboard.</p>,
-      },
       { path: "profile", element: <MyProfile /> },
       { path: "participated", element: <MyParticipatedContests /> },
       { path: "winning", element: <MyWinningContests /> },
 
-      // creator
-      { path: "add-contest", element: <AddContest /> },
-      { path: "my-contests", element: <MyCreatedContests /> },
+      // CREATOR
+      {
+        path: "add-contest",
+        element: (
+          <CreatorRoute>
+            <AddContest />
+          </CreatorRoute>
+        ),
+      },
+      {
+        path: "my-contests",
+        element: (
+          <CreatorRoute>
+            <MyCreatedContests />
+          </CreatorRoute>
+        ),
+      },
 
-      // admin
-      { path: "manage-users", element: <ManageUsers /> },
-      { path: "manage-contests", element: <ManageContests /> },
+      // ADMIN
+      {
+        path: "manage-users",
+        element: (
+          <AdminRoute>
+            <ManageUsers />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "manage-contests",
+        element: (
+          <AdminRoute>
+            <ManageContests />
+          </AdminRoute>
+        ),
+      },
     ],
-  },
+  }
 ]);
