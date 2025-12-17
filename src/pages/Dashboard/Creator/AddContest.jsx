@@ -2,28 +2,40 @@ import { useForm } from "react-hook-form";
 import { useContext } from "react";
 import toast from "react-hot-toast";
 import AuthContext from "../../../providers/AuthContext";
+import { secureFetch } from "../../../api/secureFetch";
 
 const AddContest = () => {
     const { user } = useContext(AuthContext);
     const { register, handleSubmit, reset } = useForm();
 
     const onSubmit = async (data) => {
-        const contestData = {
-            ...data,
-            creatorEmail: user.email,
-            creatorName: user.displayName,
-        };
+        try {
+            if (!user) {
+                toast.error("You must be logged in");
+                return;
+            }
 
-        const res = await fetch("http://localhost:3000/contests", {
-            method: "POST",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify(contestData),
-        });
+            const contestData = {
+                ...data,
+                creatorEmail: user.email,
+                creatorName: user.displayName || "Unknown",
+                deadline: data.deadline, // send as string, backend will convert to Date
+            };
 
-        if (res.ok) {
-            toast.success("Contest added! Waiting for admin approval.");
-            reset();
-        } else {
+            const res = await secureFetch("http://localhost:3000/contests", {
+                method: "POST",
+                body: JSON.stringify(contestData),
+            });
+
+            if (res.ok) {
+                toast.success("Contest added! Waiting for admin approval.");
+                reset();
+            } else {
+                const errorData = await res.json();
+                toast.error(errorData.message || "Failed to add contest");
+            }
+        } catch (error) {
+            console.error(error);
             toast.error("Failed to add contest");
         }
     };
@@ -33,7 +45,6 @@ const AddContest = () => {
             <h2 className="text-2xl font-bold mb-4">Add New Contest</h2>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-
                 <input {...register("title", { required: true })}
                     placeholder="Contest Title"
                     className="input input-bordered w-full" />
@@ -58,24 +69,16 @@ const AddContest = () => {
                     <option value="business">Business Idea</option>
                 </select>
 
-                <input type="number"
-                    {...register("price", { required: true })}
-                    placeholder="Entry Fee"
+                <input type="number" {...register("price", { required: true })}
+                    placeholder="Entry Fee" className="input input-bordered w-full" />
+
+                <input type="number" {...register("prizeMoney", { required: true })}
+                    placeholder="Prize Money" className="input input-bordered w-full" />
+
+                <input type="date" {...register("deadline", { required: true })}
                     className="input input-bordered w-full" />
 
-                <input type="number"
-                    {...register("prizeMoney", { required: true })}
-                    placeholder="Prize Money"
-                    className="input input-bordered w-full" />
-
-                <input type="date"
-                    {...register("deadline", { required: true })}
-                    className="input input-bordered w-full" />
-
-                <button className="btn btn-primary w-full">
-                    Add Contest
-                </button>
-
+                <button className="btn btn-primary w-full">Add Contest</button>
             </form>
         </div>
     );

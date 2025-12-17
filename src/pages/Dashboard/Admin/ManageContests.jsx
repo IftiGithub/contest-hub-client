@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import useAdminContests from "../../../hooks/useAdminContests";
-import { deleteContest, updateContestStatus } from "../../../api/contest_api";
+import { deleteContest, updateContestStatus, } from "../../../api/contest_api";
 
 const ManageContests = () => {
     const { data: contests = [] } = useAdminContests();

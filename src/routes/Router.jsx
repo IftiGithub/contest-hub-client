@@ -17,6 +17,7 @@ import MyProfile from "../pages/Dashboard/User/MyProfile";
 import ContestDetails from "../pages/ContestDetails";
 import CreatorRoute from "./CreatorRoute";
 import AdminRoute from "./AdminRoute";
+import EditContest from "../pages/Dashboard/Creator/EditContest";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -78,6 +79,14 @@ export const router = createBrowserRouter([
         element: (
           <CreatorRoute>
             <MyCreatedContests />
+          </CreatorRoute>
+        ),
+      },
+      {
+        path:"edit-contest/:id",
+        element:(
+          <CreatorRoute>
+            <EditContest></EditContest>
           </CreatorRoute>
         ),
       },
