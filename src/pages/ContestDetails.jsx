@@ -31,35 +31,29 @@ const ContestDetails = () => {
             return;
         }
 
-        // Prevent creator from joining
-        if (contest.creatorEmail === user.email) {
-            return toast.error("You cannot join your own contest");
-        }
-
-        // Prevent duplicate join
-        if (contest.participants.includes(user.email)) {
-            return toast.error("You already joined this contest");
-        }
-
         try {
-            await fetch(`http://localhost:3000/contests/register/${id}`, {
-                method: "PATCH",
+            const res = await fetch("http://localhost:3000/create-checkout-session", {
+                method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${user.accessToken}`,
                 },
-                body: JSON.stringify({ email: user.email }),
+                body: JSON.stringify({ contestId: id }),
             });
 
-            toast.success("Successfully registered!");
+            const data = await res.json();
 
-            setTimeout(() => {
-                navigate(0); // refresh page data
-            }, 1200); // 1.2 seconds delay
+            if (data.url) {
+                window.location.href = data.url; // redirect to Stripe
+            } else {
+                toast.error(data.message || "Payment failed");
+            }
 
         } catch (error) {
-            toast.error("Registration failed", error);
+            toast.error(error);
         }
     };
+
 
 
     const isContestEnded = new Date(contest.deadline) < new Date();

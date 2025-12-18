@@ -18,6 +18,7 @@ import ContestDetails from "../pages/ContestDetails";
 import CreatorRoute from "./CreatorRoute";
 import AdminRoute from "./AdminRoute";
 import EditContest from "../pages/Dashboard/Creator/EditContest";
+import PaymentSuccess from "../pages/PaymentSuccess ";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -51,6 +52,10 @@ export const router = createBrowserRouter([
           </PrivateRoute>
         ),
       },
+      {
+        path: "/payment-success",
+        element: <PaymentSuccess />,
+      }
     ],
   },
   {
@@ -83,8 +88,8 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path:"edit-contest/:id",
-        element:(
+        path: "edit-contest/:id",
+        element: (
           <CreatorRoute>
             <EditContest></EditContest>
           </CreatorRoute>
