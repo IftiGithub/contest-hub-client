@@ -1,63 +1,67 @@
 import { secureFetch } from "../api/secureFetch";
+// Save a new user (no auth required)
 export const saveUser = async (user) => {
-    const userInfo = {
-        name: user.displayName,
-        email: user.email,
-        photoURL: user.photoURL,
-    };
+  const userInfo = {
+    name: user.displayName,
+    email: user.email,
+    photoURL: user.photoURL,
+  };
 
-    const res = await fetch("http://localhost:3000/users", {
-        method: "POST",
-        headers: {
-            "content-type": "application/json",
-        },
-        body: JSON.stringify(userInfo),
-    });
+  const res = await fetch("http://localhost:3000/users", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(userInfo),
+  });
 
-    return res.json();
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(error.message || "Failed to save user");
+  }
+
+  return res.json(); // native fetch returns Response, so we still need .json() here
 };
 
+// Get user by email (uses secureFetch, already returns JSON)
 export const getUserByEmail = async (email) => {
-    const res = await secureFetch(`http://localhost:3000/users/${email}`);
-
-    if (!res.ok) {
-        // if 404, return null instead of throwing
-        return null;
-    }
-
-    return res.json();
+  try {
+    const data = await secureFetch(`http://localhost:3000/users/${email}`);
+    return data;
+  } catch (err) {
+    if (err.message.includes("404")) return null; // user not found
+    throw err;
+  }
 };
 
+// Update user info
 export const updateUser = async (email, updatedData) => {
-    const res = await secureFetch(`http://localhost:3000/users/${email}`, {
-        method: "PUT",
-        headers: {
-            "content-type": "application/json",
-        },
-        body: JSON.stringify(updatedData),
-    });
+  const data = await secureFetch(`http://localhost:3000/users/${email}`, {
+    method: "PUT",
+    body: updatedData, // secureFetch handles JSON.stringify
+  });
 
-    return res.json();
+  return data;
 };
+
 const API = "http://localhost:3000";
 
 // 🔥 Get all users
 export const getAllUsers = async () => {
-    const res = await secureFetch(`${API}/admin/users`);
-    return res.json();
+    const data = await secureFetch(`${API}/admin/users`);
+    return data; // already parsed JSON
 };
+
 
 // 🔥 Update user role
 export const updateUserRole = async ({ id, role }) => {
-    const res = await secureFetch(`${API}/admin/users/role/${id}`, {
+    const data = await secureFetch(`${API}/admin/users/role/${id}`, {
         method: "PATCH",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ role }),
+        body: { role }, // pass object directly
     });
-    return res.json();
+    return data; // already JSON
 };
+
 
 
 

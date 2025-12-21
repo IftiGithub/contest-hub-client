@@ -1,30 +1,35 @@
+import { useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
 import AuthContext from "../../../providers/AuthContext";
-import useParticipatedContests from "../../../hooks/useParticipatedContests";
+import { secureFetch } from "../../../api/secureFetch";
 import Loading from "../../Loading";
 
 const MyParticipatedContests = () => {
-    const { user } = useContext(AuthContext);
-    const { data: contests, isLoading } = useParticipatedContests(user?.email);
+  const { user } = useContext(AuthContext);
 
-    if (isLoading) return <Loading />;
+  const { data: contests = [], isLoading, isError, error } = useQuery({
+    queryKey: ["participatedContests", user?.email],
+    queryFn: () => secureFetch(`http://localhost:3000/participated-contests/${user.email}`),
+    enabled: !!user?.email,
+  });
 
-    if (!contests || contests.length === 0) return <p>No contests participated yet.</p>;
+  if (isLoading) return <Loading />;
+  if (isError) return <p className="text-red-500">{error.message}</p>;
+  if (!contests.length) return <p>You have not joined any contests yet.</p>;
 
-    return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {contests.map((contest) => (
-                <div key={contest._id} className="card bg-base-100 shadow">
-                    <img src={contest.image} alt={contest.name} className="rounded-t-lg" />
-                    <div className="p-4">
-                        <h3 className="font-bold text-lg">{contest.name}</h3>
-                        <p className="text-sm">Participants: {contest.participants?.length || 0}</p>
-                        <p className="text-sm">{contest.description?.slice(0, 100)}...</p>
-                    </div>
-                </div>
-            ))}
+  return (
+    <div className="space-y-4">
+      <h2 className="text-2xl font-bold mb-4">My Participated Contests</h2>
+      {contests.map((contest) => (
+        <div key={contest._id} className="p-4 border rounded-lg shadow">
+          <h3 className="font-semibold">{contest.title}</h3>
+          <p className="text-sm text-gray-500">
+            Deadline: {new Date(contest.deadline).toLocaleDateString()}
+          </p>
         </div>
-    );
+      ))}
+    </div>
+  );
 };
 
 export default MyParticipatedContests;

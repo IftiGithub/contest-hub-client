@@ -2,28 +2,39 @@
 import { getAuth } from "firebase/auth";
 
 /**
- * Wrapper for fetch that automatically adds Firebase auth token and JSON headers.
- * @param {string} url - endpoint URL
- * @param {object} options - fetch options { method, headers, body }
- * @returns {Promise<Response>}
+ * Wrapper for fetch that automatically adds Firebase auth token and returns JSON
+ * Works for GET, POST, PATCH, DELETE requests.
  */
 export const secureFetch = async (url, options = {}) => {
-    const auth = getAuth();
-    const user = auth.currentUser;
+  const auth = getAuth();
+  const user = auth.currentUser;
 
-    if (!user) throw new Error("User not logged in");
+  if (!user) throw new Error("User not logged in");
 
-    const token = await user.getIdToken();
+  const token = await user.getIdToken();
 
-    const { body, headers, ...rest } = options;
+  const res = await fetch(url, {
+    method: options.method || "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+      ...(options.headers || {}),
+    },
+    body: options.body ? JSON.stringify(options.body) : undefined,
+  });
 
-    return fetch(url, {
-        ...rest,
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-            ...headers,
-        },
-        body: body ? JSON.stringify(body) : undefined, // stringify only if body exists
-    });
+  if (!res.ok) {
+    let errorMessage = "Request failed";
+    try {
+      const errorData = await res.json();
+      if (errorData?.message) errorMessage = errorData.message;
+    } catch (_) {}
+    throw new Error(errorMessage);
+  }
+
+  try {
+    return await res.json();
+  } catch (_) {
+    return {};
+  }
 };
