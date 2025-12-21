@@ -15,11 +15,17 @@ const MyWinningContests = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {contests.map((contest) => (
                 <div key={contest._id} className="card bg-base-100 shadow">
-                    <img src={contest.image} alt={contest.name} className="rounded-t-lg" />
+                    <img
+                        src={contest.image || "/default-contest.jpg"} // fallback image
+                        alt={contest.title || "Contest Image"}
+                        className="rounded-t-lg"
+                    />
                     <div className="p-4">
-                        <h3 className="font-bold text-lg">{contest.name}</h3>
-                        <p className="text-sm">Prize: ${contest.prize}</p>
-                        <p className="text-sm">{contest.description?.slice(0, 100)}...</p>
+                        <h3 className="font-bold text-lg">{contest.title || "Untitled Contest"}</h3>
+                        <p className="text-sm">Prize: ${contest.prizeMoney ?? "N/A"}</p>
+                        <p className="text-sm">
+                            {contest.description ? contest.description.slice(0, 100) + "..." : "No description available."}
+                        </p>
                     </div>
                 </div>
             ))}

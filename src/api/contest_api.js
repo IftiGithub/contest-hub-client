@@ -86,3 +86,18 @@ export const searchContests = async (type) => {
 export const getContestById = async (id) => {
   return await secureFetch(`${API}/contests/${id}`);
 };
+
+// Fetch submissions for a contest (creator only)
+export const getSubmissions = async (contestId) => {
+  return await secureFetch(`${API}/contests/submissions/${contestId}`);
+};
+// Declare winner for a contest (creator only)
+export const declareWinner = async (contestId, winnerEmail) => {
+  if (!contestId || !winnerEmail) throw new Error("Contest ID and winner email are required");
+
+  return await secureFetch(`${API}/contests/declare-winner/${contestId}`, {
+    method: "PATCH",
+    body: { winnerEmail }, // send winnerEmail in request body
+  });
+};
+
