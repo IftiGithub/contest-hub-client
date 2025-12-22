@@ -100,4 +100,10 @@ export const declareWinner = async (contestId, winnerEmail) => {
     body: { winnerEmail }, // send winnerEmail in request body
   });
 };
+// ===== Winner Advertisement =====
+export const getRecentWinners = async () => {
+  const res = await fetch("http://localhost:3000/contests/winners");
+  if (!res.ok) throw new Error("Failed to fetch winners");
+  return res.json();
+};
 
