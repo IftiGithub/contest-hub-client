@@ -19,6 +19,8 @@ import CreatorRoute from "./CreatorRoute";
 import AdminRoute from "./AdminRoute";
 import EditContest from "../pages/Dashboard/Creator/EditContest";
 import PaymentSuccess from "../pages/PaymentSuccess ";
+import Leaderboard from "../pages/Leaderboard";
+import TopCreators from "../pages/TopCreators";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -55,7 +57,19 @@ export const router = createBrowserRouter([
       {
         path: "/payment-success",
         element: <PaymentSuccess />,
-      }
+      },
+      {
+        path: "/leaderboard",
+        element: <PrivateRoute>
+          <Leaderboard></Leaderboard>
+        </PrivateRoute>,
+      },
+      {
+        path: "/top-creators",
+        element: <PrivateRoute>
+          <TopCreators></TopCreators>
+        </PrivateRoute>,
+      },
     ],
   },
   {
