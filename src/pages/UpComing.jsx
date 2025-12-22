@@ -9,7 +9,7 @@ const Upcoming = () => {
   // Fetch upcoming contests (status = pending approval)
   const { data: upcomingContests = [], isLoading, isError } = useQuery({
     queryKey: ["upcomingContests"],
-    queryFn: () => secureFetch(`http://localhost:3000/upcoming`),
+    queryFn: () => secureFetch(`https://contest-hub-server-ashen-two.vercel.app/upcoming`),
   });
 
   if (isLoading) return <Loading />;

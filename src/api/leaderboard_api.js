@@ -2,7 +2,7 @@
 
 import { secureFetch } from "./secureFetch";
 
-const API = "http://localhost:3000"; // backend URL
+const API = "https://contest-hub-server-ashen-two.vercel.app"; // backend URL
 
 /**
  * Fetch paginated leaderboard.

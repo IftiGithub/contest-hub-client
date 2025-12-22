@@ -7,7 +7,7 @@ export const saveUser = async (user) => {
     photoURL: user.photoURL,
   };
 
-  const res = await fetch("http://localhost:3000/users", {
+  const res = await fetch("https://contest-hub-server-ashen-two.vercel.app/users", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -26,7 +26,7 @@ export const saveUser = async (user) => {
 // Get user by email (uses secureFetch, already returns JSON)
 export const getUserByEmail = async (email) => {
   try {
-    const data = await secureFetch(`http://localhost:3000/users/${email}`);
+    const data = await secureFetch(`https://contest-hub-server-ashen-two.vercel.app/users/${email}`);
     return data;
   } catch (err) {
     if (err.message.includes("404")) return null; // user not found
@@ -36,7 +36,7 @@ export const getUserByEmail = async (email) => {
 
 // Update user info
 export const updateUser = async (email, updatedData) => {
-  const data = await secureFetch(`http://localhost:3000/users/${email}`, {
+  const data = await secureFetch(`https://contest-hub-server-ashen-two.vercel.app/users/${email}`, {
     method: "PUT",
     body: updatedData, // secureFetch handles JSON.stringify
   });
@@ -44,7 +44,7 @@ export const updateUser = async (email, updatedData) => {
   return data;
 };
 
-const API = "http://localhost:3000";
+const API = "https://contest-hub-server-ashen-two.vercel.app";
 
 // 🔥 Get all users
 export const getAllUsers = async () => {

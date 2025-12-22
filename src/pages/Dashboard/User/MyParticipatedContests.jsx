@@ -9,7 +9,7 @@ const MyParticipatedContests = () => {
 
   const { data: contests = [], isLoading, isError, error } = useQuery({
     queryKey: ["participatedContests", user?.email],
-    queryFn: () => secureFetch(`http://localhost:3000/participated-contests/${user.email}`),
+    queryFn: () => secureFetch(`https://contest-hub-server-ashen-two.vercel.app/participated-contests/${user.email}`),
     enabled: !!user?.email,
   });
 

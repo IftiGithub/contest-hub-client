@@ -10,7 +10,7 @@ const useDbUser = (email) => {
     queryKey: ["user", email],
     queryFn: async () => {
       if (!email) return { role: "user" }; // fallback
-      const data = await secureFetch(`http://localhost:3000/users/${email}`);
+      const data = await secureFetch(`https://contest-hub-server-ashen-two.vercel.app/users/${email}`);
       // Ensure data is always an object
       return data || { role: "user" };
     },

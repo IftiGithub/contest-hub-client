@@ -16,7 +16,7 @@ const EditContest = () => {
     useEffect(() => {
         const fetchContest = async () => {
             try {
-                const res = await secureFetch(`http://localhost:3000/contests/${id}`);
+                const res = await secureFetch(`https://contest-hub-server-ashen-two.vercel.app/contests/${id}`);
                 if (!res.ok) {
                     const err = await res.json();
                     toast.error(err.message || "Failed to fetch contest");
@@ -67,7 +67,7 @@ const EditContest = () => {
                 deadline: data.deadline,
             };
 
-            const res = await secureFetch(`http://localhost:3000/contests/${id}`, {
+            const res = await secureFetch(`https://contest-hub-server-ashen-two.vercel.app/contests/${id}`, {
                 method: "PATCH",
                 body: JSON.stringify(updatedData),
             });

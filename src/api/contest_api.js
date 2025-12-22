@@ -1,6 +1,6 @@
 import { secureFetch } from "../api/secureFetch";
 
-const API = "http://localhost:3000";
+const API = "https://contest-hub-server-ashen-two.vercel.app";
 
 // ===== User Contests =====
 
@@ -102,7 +102,7 @@ export const declareWinner = async (contestId, winnerEmail) => {
 };
 // ===== Winner Advertisement =====
 export const getRecentWinners = async () => {
-  const res = await fetch("http://localhost:3000/contests/winners");
+  const res = await fetch("https://contest-hub-server-ashen-two.vercel.app/contests/winners");
   if (!res.ok) throw new Error("Failed to fetch winners");
   return res.json();
 };

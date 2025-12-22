@@ -1,16 +1,35 @@
-# React + Vite
+# ContestHub - Client Side
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Project Overview
+ContestHub is a platform for creative contests where users can participate, submit tasks, and compete for prizes. Creators can create contests, and admins can approve contests. The frontend provides a smooth user experience with features like dark/light mode, profile management, contest browsing, and live deadline countdown.
 
-Currently, two official plugins are available:
+## Features
+- User authentication with Firebase
+- Dark/Light theme toggle with persistent choice
+- Browse contests:
+  - Popular contests
+  - Upcoming contests (pending admin approval)
+  - All contests
+- Search contests by type
+- Contest participation with Stripe payment integration
+- Submit contest tasks
+- View winners
+- User profile management with update form
+- Win percentage chart (Pie chart using Recharts)
+- Admin-specific views (via protected APIs)
+- Responsive design using TailwindCSS & DaisyUI
+- Real-time deadline countdown
+- LeaderBoard
+- Top Creators
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tech Stack
+- React 18
+- React Router
+- TailwindCSS + DaisyUI
+- Framer Motion (for animations)
+- tanstack Query (data fetching)
+- Recharts (Pie chart for win percentage)
+- React Hook Form (profile update)
+- Firebase Authentication
+- React Hot Toast (notifications)
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
