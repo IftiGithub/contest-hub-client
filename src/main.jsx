@@ -5,18 +5,21 @@ import './index.css'
 import App from './App.jsx'
 import { router } from './routes/Router.jsx';
 import AuthProvider from './providers/AuthProvider.jsx';
-import {QueryClientProvider,QueryClient} from '@tanstack/react-query'
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
 import { Toaster } from "react-hot-toast"
+import { ThemeProvider } from './providers/ThemeContest.jsx';
 
 const queryClient = new QueryClient()
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <RouterProvider router={router} />
-      </AuthProvider>
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <RouterProvider router={router} />
+        </AuthProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
     <Toaster position="top-center" />
   </StrictMode>,
 )
