@@ -8,7 +8,27 @@ import {
     getRecentWinners,
     searchContests,
 } from "../api/contest_api";
-import WhyJoin from "../components/home/WhyJoin";
+const features = [
+    {
+        title: "Global Exposure",
+        description:
+            "Showcase your skills to a worldwide audience and get recognized by top professionals.",
+        icon: "🌍",
+    },
+    {
+        title: "Exciting Rewards",
+        description:
+            "Win amazing prizes and gain opportunities that can boost your career.",
+        icon: "🏆",
+    },
+    {
+        title: "Community Support",
+        description:
+            "Connect with like-minded creators, collaborate, and learn from each other.",
+        icon: "🤝",
+    },
+];
+
 
 const bannerImages = [
     "https://images.unsplash.com/photo-1521737604893-d14cc237f11d",
@@ -184,7 +204,7 @@ const Home = () => {
                 </div>
 
                 <div className="text-center mt-10">
-                    <Link to="/all-contests" className="btn btn-outline btn-wide">
+                    <Link to="/all-contest" className="btn btn-outline btn-wide">
                         Show All Contests
                     </Link>
                 </div>
@@ -257,7 +277,22 @@ const Home = () => {
 
 
             {/* ======================= EXTRA SECTION ======================= */}
-            <WhyJoin></WhyJoin>
+            <section className="my-20 max-w-6xl mx-auto">
+                <h2 className="text-4xl font-bold text-center mb-12">Why ContestHub?</h2>
+                <div className="grid md:grid-cols-3 gap-8">
+                    {features.map((feature, idx) => (
+                        <motion.div
+                            key={idx}
+                            whileHover={{ scale: 1.05 }}
+                            className="bg-white rounded-2xl shadow-xl p-8 text-center"
+                        >
+                            <div className="text-5xl mb-4">{feature.icon}</div>
+                            <h3 className="text-2xl font-bold mb-2">{feature.title}</h3>
+                            <p className="text-gray-500">{feature.description}</p>
+                        </motion.div>
+                    ))}
+                </div>
+            </section>
         </div>
     );
 };
