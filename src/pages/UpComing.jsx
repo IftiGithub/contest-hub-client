@@ -25,7 +25,7 @@ const Upcoming = () => {
       <h2 className="text-3xl font-bold mb-8 text-center">⏳ Upcoming Contests</h2>
 
       {upcomingContests.length === 0 ? (
-        <p className="text-center text-gray-500">No upcoming contests</p>
+        <p className="text-center text-gray-500">Pending contests will shown as upcoming contest.</p>
       ) : (
         <div className="grid md:grid-cols-3 gap-6">
           {upcomingContests.map((contest) => (

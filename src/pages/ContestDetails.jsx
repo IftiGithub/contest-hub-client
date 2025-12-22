@@ -5,6 +5,7 @@ import AuthContext from "../providers/AuthContext.jsx";
 import Loading from "./Loading.jsx";
 import { secureFetch } from "../api/secureFetch";
 import toast from "react-hot-toast";
+import { div } from "framer-motion/client";
 
 const ContestDetails = () => {
   const { id } = useParams();
@@ -86,7 +87,7 @@ const ContestDetails = () => {
     }
     setIsSubmitting(true);
     try {
-      await secureFetch(`/contests/${id}/submit-task`, { method: "POST", body: { taskLink } });
+      await secureFetch(`http://localhost:3000/contests/${id}/submit-task`, { method: "POST", body: { taskLink } });
       toast.success("Task submitted successfully!");
       setIsModalOpen(false);
       setTaskLink("");
@@ -119,6 +120,7 @@ const ContestDetails = () => {
         <p className="text-lg font-bold text-red-600">{timeLeft}</p>
       )}
 
+      <div className="text-center text-4xl font-bold">Winner</div>
       {contest.winnerName && (
         <div className="bg-green-100 p-4 rounded-lg flex items-center gap-3">
           {contest.winnerImage && <img src={contest.winnerImage} alt={contest.winnerName} className="w-16 h-16 rounded-full" />}

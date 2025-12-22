@@ -51,18 +51,43 @@ const MyCreatedContests = () => {
 
     const handleDeclareWinner = async (email) => {
         if (!selectedContest) return;
-        const confirm = window.confirm(`Declare ${email} as winner?`);
-        if (!confirm) return;
 
-        try {
-            await declareWinner(selectedContest._id, email);
-            toast.success("Winner declared successfully!");
-            setModalOpen(false);
-            refetch();
-        } catch (error) {
-            console.error(error);
-            toast.error("Failed to declare winner");
-        }
+        toast((t) => (
+            <div className="space-y-3">
+                <p className="font-semibold">
+                    Declare <span className="text-primary">{email}</span> as winner?
+                </p>
+
+                <div className="flex justify-end gap-2">
+                    <button
+                        className="btn btn-sm btn-outline"
+                        onClick={() => toast.dismiss(t.id)}
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        className="btn btn-sm btn-success"
+                        onClick={async () => {
+                            toast.dismiss(t.id);
+                            try {
+                                await declareWinner(selectedContest._id, email);
+                                toast.success("Winner declared successfully!");
+                                setModalOpen(false);
+                                refetch();
+                            } catch (error) {
+                                console.error(error);
+                                toast.error("Failed to declare winner");
+                            }
+                        }}
+                    >
+                        Confirm
+                    </button>
+                </div>
+            </div>
+        ), {
+            duration: Infinity, // stays until user acts
+        });
     };
 
     return (
