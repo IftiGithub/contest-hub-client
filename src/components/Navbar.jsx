@@ -43,6 +43,7 @@ const Navbar = () => {
                         <li><NavLink to="/">Home</NavLink></li>
                         <li><NavLink to="/all-contest">All Contests</NavLink></li>
                         <li><NavLink to="/extra">Extra Section</NavLink></li>
+                        <li><NavLink to="/extra">Extra Section</NavLink></li>
                     </ul>
                 </div>
 
@@ -63,6 +64,7 @@ const Navbar = () => {
                     <li><NavLink to="/extra">Extra Section</NavLink></li>
                     <li><NavLink to="/leaderboard">LeaderBoard</NavLink></li>
                     <li><NavLink to="/top-creators">TopCreators</NavLink></li>
+                    <li><NavLink to="/upcoming">UpcomingContests</NavLink></li>
                 </ul>
             </div>
 

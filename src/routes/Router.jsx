@@ -21,6 +21,7 @@ import EditContest from "../pages/Dashboard/Creator/EditContest";
 import PaymentSuccess from "../pages/PaymentSuccess ";
 import Leaderboard from "../pages/Leaderboard";
 import TopCreators from "../pages/TopCreators";
+import UpComing from "../pages/UpComing";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -68,6 +69,12 @@ export const router = createBrowserRouter([
         path: "/top-creators",
         element: <PrivateRoute>
           <TopCreators></TopCreators>
+        </PrivateRoute>,
+      },
+            {
+        path: "/upcoming",
+        element: <PrivateRoute>
+          <UpComing></UpComing>
         </PrivateRoute>,
       },
     ],
