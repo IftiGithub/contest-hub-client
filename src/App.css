@@ -1,5 +1,53 @@
-.active{
+/* Dark Theme for ContestHub */
+body {
+  background-color: #0a0a0a;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+}
+
+.active {
     font-weight: bolder;
     font-size: large;
+    color: #00ff88 !important;
+}
 
+/* Override DaisyUI defaults for dark theme */
+:root {
+  --b1: #1a1a1a;
+  --b2: #2a2a2a;
+  --b3: #0a0a0a;
+  --n: #ffffff;
+  --nc: #0a0a0a;
+  --p: #00ff88;
+  --pc: #0a0a0a;
+  --s: #8b5cf6;
+  --sc: #0a0a0a;
+  --a: #ec4899;
+  --ac: #0a0a0a;
+  --in: #2a2a2a;
+  --inc: #cccccc;
+  --su: #00ff88;
+  --suc: #0a0a0a;
+  --wa: #f59e0b;
+  --wac: #0a0a0a;
+  --er: #ef4444;
+  --erc: #0a0a0a;
+}
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #00ff88;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8b5cf6;
 }

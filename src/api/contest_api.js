@@ -1,6 +1,6 @@
 import { secureFetch } from "../api/secureFetch";
 
-const API = "https://contest-hub-server-ashen-two.vercel.app";
+const API = import.meta.env.VITE_API_BASE_URL || "https://contest-hub-server-ashen-two.vercel.app";
 
 // ===== User Contests =====
 
@@ -70,9 +70,15 @@ export const getApprovedContests = async () => {
 
 // Get popular contests (top 5)
 export const getPopularContests = async () => {
-  const res = await fetch(`${API}/contests/popular`);
-  if (!res.ok) throw new Error("Failed to fetch popular contests");
-  return res.json();
+  try {
+    const res = await fetch(`${API}/contests/popular`);
+    if (!res.ok) {
+      return [];
+    }
+    return res.json();
+  } catch (error) {
+    return [];
+  }
 };
 
 // Search contests by type
@@ -102,8 +108,14 @@ export const declareWinner = async (contestId, winnerEmail) => {
 };
 // ===== Winner Advertisement =====
 export const getRecentWinners = async () => {
-  const res = await fetch("https://contest-hub-server-ashen-two.vercel.app/contests/winners");
-  if (!res.ok) throw new Error("Failed to fetch winners");
-  return res.json();
+  try {
+    const res = await fetch(`${API}/contests/winners`);
+    if (!res.ok) {
+      return [];
+    }
+    return res.json();
+  } catch (error) {
+    return [];
+  }
 };
 

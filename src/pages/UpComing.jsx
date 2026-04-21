@@ -15,57 +15,132 @@ const Upcoming = () => {
   if (isLoading) return <Loading />;
   if (isError)
     return (
-      <p className="text-center text-red-500 mt-10">
+      <p className="text-center text-red-400 mt-10">
         Failed to load upcoming contests
       </p>
     );
 
   return (
-    <div className="px-4 my-10 max-w-6xl mx-auto">
-      <h2 className="text-3xl font-bold mb-8 text-center">⏳ Upcoming Contests</h2>
-
-      {upcomingContests.length === 0 ? (
-        <p className="text-center text-gray-500">Pending contests will shown as upcoming contest.</p>
-      ) : (
-        <div className="grid md:grid-cols-3 gap-6">
-          {upcomingContests.map((contest) => (
-            <motion.div
-              whileHover={{ scale: 1.03 }}
-              key={contest._id}
-              className="card bg-base-100 shadow-lg"
-            >
-              <img
-                src={contest.image}
-                alt={contest.title}
-                className="h-48 w-full object-cover"
-              />
-              <div className="card-body">
-                <h3 className="card-title">{contest.title}</h3>
-                <p className="text-sm text-gray-500">
-                  {contest.description?.slice(0, 80)}...
-                </p>
-                <p className="text-sm">
-                  👤 By {contest.creatorName} ({contest.creatorEmail})
-                </p>
-                <p className="text-sm">
-                  ⏳ Deadline: {new Date(contest.deadline).toLocaleDateString()}
-                </p>
-                <p className="text-lg font-semibold">💰 Prize: ${contest.prizeMoney}</p>
-                <span className="inline-block mt-2 px-2 py-1 text-xs bg-yellow-200 text-yellow-800 rounded">
-                  Pending Approval
-                </span>
-                <Link
-                  to={`/contest/${contest._id}`}
-                  className="btn btn-primary btn-sm mt-2"
-                >
-                  Details
-                </Link>
-              </div>
-            </motion.div>
-          ))}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.6 }}
+      className="min-h-screen bg-[var(--bg-primary)] px-4 py-16 md:py-20"
+    >
+      {/* Header Section */}
+      <motion.div
+        className="max-w-7xl mx-auto mb-16"
+        initial={{ opacity: 0, y: -30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <div className="text-center">
+          <div className="inline-flex items-center gap-3 mb-6 justify-center">
+            <div className="w-12 h-12 bg-gradient-to-br from-[#facc15] to-[#d97706] rounded-xl flex items-center justify-center shadow-lg">
+              <span className="text-xl">⏳</span>
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold text-[var(--text-primary)]">
+              Upcoming Contests
+            </h1>
+          </div>
+          <p className="text-[var(--text-secondary)] max-w-2xl mx-auto">
+            Watch for contests that are coming soon to the platform
+          </p>
         </div>
-      )}
-    </div>
+      </motion.div>
+
+      {/* Contests Grid */}
+      <motion.div
+        className="max-w-7xl mx-auto"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3 }}
+      >
+        {upcomingContests.length === 0 ? (
+          <motion.div
+            className="text-center py-20"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+          >
+            <div className="text-6xl mb-4">📋</div>
+            <h3 className="text-2xl font-semibold text-[var(--text-primary)] mb-2">
+              No Upcoming Contests Yet
+            </h3>
+            <p className="text-[var(--text-secondary)]">
+              Check back soon for new contests coming to the platform
+            </p>
+          </motion.div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {upcomingContests.map((contest, index) => (
+              <motion.div
+                key={contest._id}
+                className="card-modern overflow-hidden group"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.08 }}
+                whileHover={{ y: -8 }}
+              >
+                {/* Image Container */}
+                <div className="relative overflow-hidden h-48 bg-[var(--bg-secondary)]">
+                  <motion.img
+                    src={contest.image}
+                    alt={contest.title}
+                    className="w-full h-full object-cover group-hover:scale-105"
+                    transition={{ duration: 0.3 }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  {/* Pending Badge */}
+                  <div className="absolute top-3 right-3">
+                    <span className="badge-warning">⏳ Pending</span>
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="p-6">
+                  <h3 className="text-lg font-bold text-[var(--text-primary)] mb-2 line-clamp-2">
+                    {contest.title}
+                  </h3>
+                  <p className="text-sm text-[var(--text-secondary)] mb-4 line-clamp-2">
+                    {contest.description}
+                  </p>
+
+                  {/* Stats */}
+                  <div className="space-y-2 mb-4 text-sm">
+                    <div className="flex items-center gap-2 text-[var(--text-secondary)]">
+                      <span>👤</span>
+                      <span>By {contest.creatorName}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-[var(--text-secondary)]">
+                      <span>📅</span>
+                      <span>Deadline: {new Date(contest.deadline).toLocaleDateString()}</span>
+                    </div>
+                    {contest.prizeMoney && (
+                      <div className="flex items-center gap-2 text-gradient font-semibold">
+                        <span>💰</span>
+                        <span>${contest.prizeMoney}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* CTA Button */}
+                  <Link to={`/contest/${contest._id}`} className="block">
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <button className="btn-gamified w-full">
+                        View Details →
+                      </button>
+                    </motion.div>
+                  </Link>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </motion.div>
+    </motion.div>
   );
 };
 

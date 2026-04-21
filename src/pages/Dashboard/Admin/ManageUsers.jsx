@@ -5,6 +5,7 @@ import { useNavigate } from "react-router";
 import AuthContext from "../../../providers/AuthContext";
 import { getAllUsers, updateUserRole } from "../../../api/user_api";
 import Loading from "../../Loading";
+import { motion } from "framer-motion";
 
 const ManageUsers = () => {
     const { user } = useContext(AuthContext);
@@ -31,7 +32,7 @@ const ManageUsers = () => {
         // If admin changes HIS OWN role
         if (targetUser.email === user.email) {
             toast((t) => (
-                <span>
+                <span className="text-white">
                     ⚠️ Are you sure you want to change your role?
                     <div className="mt-2 flex gap-2">
                         <button
@@ -49,7 +50,7 @@ const ManageUsers = () => {
                             Yes
                         </button>
                         <button
-                            className="btn btn-sm"
+                            className="btn btn-sm btn-outline border-gray-500 text-gray-300"
                             onClick={() => toast.dismiss(t.id)}
                         >
                             Cancel
@@ -72,44 +73,89 @@ const ManageUsers = () => {
     };
 
     return (
-        <div className="p-6">
-            <h2 className="text-2xl font-bold mb-6">Manage Users</h2>
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8 }}
+            className="p-6"
+        >
+            <motion.h2
+                initial={{ y: -50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="text-4xl font-bold mb-8 bg-gradient-to-r from-red-400 to-orange-500 bg-clip-text text-transparent"
+            >
+                👥 Manage Users
+            </motion.h2>
 
-            <div className="overflow-x-auto">
-                <table className="table table-zebra">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Change Role</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {users.map((u) => (
-                            <tr key={u._id}>
-                                <td>{u.name}</td>
-                                <td>{u.email}</td>
-                                <td className="capitalize">{u.role}</td>
-                                <td>
-                                    <select
-                                        className="select select-sm select-bordered"
-                                        value={u.role}
-                                        onChange={(e) =>
-                                            handleRoleChange(u, e.target.value)
-                                        }
-                                    >
-                                        <option value="user">User</option>
-                                        <option value="creator">Creator</option>
-                                        <option value="admin">Admin</option>
-                                    </select>
-                                </td>
+            <motion.div
+                initial={{ y: 50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="card-gamified overflow-hidden"
+            >
+                <div className="overflow-x-auto">
+                    <table className="table w-full">
+                        <thead>
+                            <tr className="bg-gradient-to-r from-red-600 to-orange-600 text-white">
+                                <th className="text-center">Name</th>
+                                <th className="text-center">Email</th>
+                                <th className="text-center">Role</th>
+                                <th className="text-center">Change Role</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                        </thead>
+                        <tbody>
+                            {users.map((u, index) => (
+                                <motion.tr
+                                    key={u._id}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                                    className="hover:bg-gray-800 transition-colors"
+                                    whileHover={{ scale: 1.01 }}
+                                >
+                                    <td className="font-semibold text-white flex items-center gap-3">
+                                        {u.photoURL && (
+                                            <motion.img
+                                                src={u.photoURL}
+                                                alt={u.name}
+                                                className="w-8 h-8 rounded-full border border-gray-600"
+                                                whileHover={{ scale: 1.1 }}
+                                            />
+                                        )}
+                                        {u.name}
+                                    </td>
+                                    <td className="text-gray-300">{u.email}</td>
+                                    <td>
+                                        <span className={`badge ${
+                                            u.role === 'admin' ? 'badge-error' :
+                                            u.role === 'creator' ? 'badge-warning' :
+                                            'badge-info'
+                                        }`}>
+                                            {u.role}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <motion.select
+                                            className="select select-sm select-bordered bg-gray-800 border-gray-600 text-white"
+                                            value={u.role}
+                                            onChange={(e) =>
+                                                handleRoleChange(u, e.target.value)
+                                            }
+                                            whileHover={{ scale: 1.05 }}
+                                        >
+                                            <option value="user" className="bg-gray-800">User</option>
+                                            <option value="creator" className="bg-gray-800">Creator</option>
+                                            <option value="admin" className="bg-gray-800">Admin</option>
+                                        </motion.select>
+                                    </td>
+                                </motion.tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </motion.div>
+        </motion.div>
     );
 };
 

@@ -1,65 +1,159 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 
 const Footer = () => {
     return (
-        <footer className="footer sm:footer-horizontal bg-neutral text-neutral-content p-10">
-            <aside>
-                <svg
-                    width="50"
-                    height="50"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    className="fill-current">
-                    <path
-                        d="M22.672 15.226l-2.432.811.841 2.515c.33 1.019-.209 2.127-1.23 2.456-1.15.325-2.148-.321-2.463-1.226l-.84-2.518-5.013 1.677.84 2.517c.391 1.203-.434 2.542-1.831 2.542-.88 0-1.601-.564-1.86-1.314l-.842-2.516-2.431.809c-1.135.328-2.145-.317-2.463-1.229-.329-1.018.211-2.127 1.231-2.456l2.432-.809-1.621-4.823-2.432.808c-1.355.384-2.558-.59-2.558-1.839 0-.817.509-1.582 1.327-1.846l2.433-.809-.842-2.515c-.33-1.02.211-2.129 1.232-2.458 1.02-.329 2.13.209 2.461 1.229l.842 2.515 5.011-1.677-.839-2.517c-.403-1.238.484-2.553 1.843-2.553.819 0 1.585.509 1.85 1.326l.841 2.517 2.431-.81c1.02-.33 2.131.211 2.461 1.229.332 1.018-.21 2.126-1.23 2.456l-2.433.809 1.622 4.823 2.433-.809c1.242-.401 2.557.484 2.557 1.838 0 .819-.51 1.583-1.328 1.847m-8.992-6.428l-5.01 1.675 1.619 4.828 5.011-1.674-1.62-4.829z"></path>
-                </svg>
-                <p>
-                    ACME Industries Ltd.
-                    <br />
-                    Providing reliable tech since 1992
-                </p>
-            </aside>
-            <nav>
-                <h6 className="footer-title">Social</h6>
-                <div className="grid grid-flow-col gap-4">
-                    <a>
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            className="fill-current">
-                            <path
-                                d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path>
-                        </svg>
-                    </a>
-                    <a>
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            className="fill-current">
-                            <path
-                                d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"></path>
-                        </svg>
-                    </a>
-                    <a>
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            className="fill-current">
-                            <path
-                                d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"></path>
-                        </svg>
-                    </a>
+        <motion.footer
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="bg-[var(--bg-secondary)] border-t border-[var(--border-light)] mt-20"
+        >
+            <div className="max-w-7xl mx-auto px-4 py-16">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    {/* Brand Section */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="space-y-4"
+                    >
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-[var(--accent-primary)] rounded-xl flex items-center justify-center">
+                                <span className="text-white font-bold text-lg">🎯</span>
+                            </div>
+                            <span className="text-xl font-semibold text-[var(--text-primary)]">ContestHub</span>
+                        </div>
+                        <p className="text-[var(--text-secondary)] leading-relaxed">
+                            Empowering creativity through competitive challenges. Join thousands of creators worldwide.
+                        </p>
+                    </motion.div>
+
+                    {/* Quick Links */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="space-y-4"
+                    >
+                        <h3 className="text-lg font-semibold text-[var(--text-primary)]">Quick Links</h3>
+                        <div className="space-y-2">
+                            {[
+                                { label: "About Us", href: "#" },
+                                { label: "How It Works", href: "#" },
+                                { label: "Pricing", href: "#" },
+                                { label: "Support", href: "#" }
+                            ].map((link, index) => (
+                                <motion.a
+                                    key={index}
+                                    href={link.href}
+                                    className="block text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors duration-200"
+                                    whileHover={{ x: 4 }}
+                                >
+                                    {link.label}
+                                </motion.a>
+                            ))}
+                        </div>
+                    </motion.div>
+
+                    {/* Resources */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="space-y-4"
+                    >
+                        <h3 className="text-lg font-semibold text-[var(--text-primary)]">Resources</h3>
+                        <div className="space-y-2">
+                            {[
+                                { label: "Contest Guidelines", href: "#" },
+                                { label: "Creator Resources", href: "#" },
+                                { label: "API Documentation", href: "#" },
+                                { label: "Blog", href: "#" }
+                            ].map((link, index) => (
+                                <motion.a
+                                    key={index}
+                                    href={link.href}
+                                    className="block text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors duration-200"
+                                    whileHover={{ x: 4 }}
+                                >
+                                    {link.label}
+                                </motion.a>
+                            ))}
+                        </div>
+                    </motion.div>
+
+                    {/* Connect */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4 }}
+                        className="space-y-4"
+                    >
+                        <h3 className="text-lg font-semibold text-[var(--text-primary)]">Connect</h3>
+                        <div className="flex space-x-4">
+                            {[
+                                {
+                                    name: "Twitter",
+                                    icon: "M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z",
+                                    href: "#"
+                                },
+                                {
+                                    name: "LinkedIn",
+                                    icon: "M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z",
+                                    href: "#"
+                                },
+                                {
+                                    name: "GitHub",
+                                    icon: "M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z",
+                                    href: "#"
+                                }
+                            ].map((social, index) => (
+                                <motion.a
+                                    key={index}
+                                    href={social.href}
+                                    className="w-10 h-10 bg-[var(--bg-accent)] hover:bg-[var(--accent-primary)] rounded-lg flex items-center justify-center text-[var(--text-secondary)] hover:text-white transition-all duration-200"
+                                    whileHover={{ scale: 1.1, y: -2 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    title={social.name}
+                                >
+                                    <svg
+                                        className="w-5 h-5"
+                                        fill="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path d={social.icon}></path>
+                                    </svg>
+                                </motion.a>
+                            ))}
+                        </div>
+                    </motion.div>
                 </div>
-            </nav>
-        </footer>
+
+                {/* Bottom Section */}
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.6 }}
+                    className="border-t border-[var(--border-light)] mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4"
+                >
+                    <p className="text-[var(--text-muted)] text-sm">
+                        © 2024 ContestHub. All rights reserved.
+                    </p>
+                    <div className="flex items-center gap-6 text-sm">
+                        <a href="#" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
+                            Privacy Policy
+                        </a>
+                        <a href="#" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
+                            Terms of Service
+                        </a>
+                        <a href="#" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
+                            Cookie Policy
+                        </a>
+                    </div>
+                </motion.div>
+            </div>
+        </motion.footer>
     );
 };
 

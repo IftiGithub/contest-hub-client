@@ -9,6 +9,7 @@ import {
   getParticipatedContests,
   getWinningContests,
 } from "../../../api/contest_api";
+import { motion } from "framer-motion";
 
 // 🔥 Recharts
 import {
@@ -77,57 +78,107 @@ const MyProfile = () => {
       : [];
 
   return (
-    <div className="max-w-3xl space-y-12">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}
+      className="max-w-4xl mx-auto space-y-12 p-6"
+    >
       {/* ================= PROFILE FORM ================= */}
-      <div>
-        <h2 className="text-2xl font-bold mb-4">My Profile</h2>
+      <motion.div
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="card-gamified p-8"
+      >
+        <h2 className="text-3xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+          👤 My Profile
+        </h2>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <label className="text-lg">Name</label>
-          <input
-            className="input input-bordered w-full"
-            placeholder="Name"
-            {...register("name")}
-          />
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text text-white text-lg">Name</span>
+            </label>
+            <input
+              className="input-gamified"
+              placeholder="Name"
+              {...register("name")}
+            />
+          </div>
 
-          <label className="text-lg">Image</label>
-          <input
-            className="input input-bordered w-full"
-            placeholder="Photo URL"
-            {...register("photoURL")}
-          />
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text text-white text-lg">Image</span>
+            </label>
+            <input
+              className="input-gamified"
+              placeholder="Photo URL"
+              {...register("photoURL")}
+            />
+          </div>
 
-          <label className="text-lg">Bio</label>
-          <textarea
-            className="textarea textarea-bordered w-full"
-            placeholder="Bio"
-            {...register("bio")}
-          />
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text text-white text-lg">Bio</span>
+            </label>
+            <textarea
+              className="textarea textarea-bordered w-full bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+              placeholder="Bio"
+              rows={4}
+              {...register("bio")}
+            />
+          </div>
 
-          <button className="btn btn-primary" disabled={mutation.isPending}>
+          <motion.button
+            className="btn-gamified w-full"
+            disabled={mutation.isPending}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
             {mutation.isPending ? "Updating..." : "Update Profile"}
-          </button>
+          </motion.button>
         </form>
-      </div>
+      </motion.div>
 
       {/* ================= WIN PERCENTAGE ================= */}
-      <div className="bg-base-200 p-6 rounded-xl shadow">
-        <h3 className="text-xl font-bold mb-4 text-center">
+      <motion.div
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.4 }}
+        className="card-gamified p-8"
+      >
+        <h3 className="text-2xl font-bold mb-6 text-center bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
           🏆 Win Percentage
         </h3>
 
         {total === 0 ? (
-          <p className="text-center text-gray-500">
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            className="text-center text-gray-400 text-lg"
+          >
             No contest participation yet
-          </p>
+          </motion.p>
         ) : (
           <>
-            <p className="text-center mb-4 font-semibold">
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              className="text-center mb-6 font-semibold text-xl text-green-400"
+            >
               {wins} Wins / {total} Contests (
               {Math.round((wins / total) * 100)}%)
-            </p>
+            </motion.p>
 
-            <div className="w-full h-64">
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="w-full h-80"
+            >
               <ResponsiveContainer>
                 <PieChart>
                   <Pie
@@ -136,7 +187,7 @@ const MyProfile = () => {
                     nameKey="name"
                     cx="50%"
                     cy="50%"
-                    outerRadius={90}
+                    outerRadius={100}
                     label
                   >
                     {chartData.map((_, index) => (
@@ -146,15 +197,22 @@ const MyProfile = () => {
                       />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#1a1a1a",
+                      border: "1px solid #333",
+                      borderRadius: "8px",
+                      color: "#fff",
+                    }}
+                  />
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>
-            </div>
+            </motion.div>
           </>
         )}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

@@ -71,7 +71,7 @@ export const router = createBrowserRouter([
           <TopCreators></TopCreators>
         </PrivateRoute>,
       },
-            {
+      {
         path: "/upcoming",
         element: <PrivateRoute>
           <UpComing></UpComing>
@@ -87,6 +87,10 @@ export const router = createBrowserRouter([
       </PrivateRoute>
     ),
     children: [
+      {
+        index: true,
+        element:<div className="text-5xl text-center m-10">Welcome to Dashboard!</div>
+      },
       { path: "profile", element: <MyProfile /> },
       { path: "participated", element: <MyParticipatedContests /> },
       { path: "winning", element: <MyWinningContests /> },
