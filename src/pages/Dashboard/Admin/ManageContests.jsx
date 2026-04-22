@@ -67,8 +67,8 @@ const ManageContests = () => {
                                     className="hover:bg-gray-800 transition-colors"
                                     whileHover={{ scale: 1.01 }}
                                 >
-                                    <td className="font-semibold text-white">{contest.title}</td>
-                                    <td className="text-gray-300">{contest.creatorEmail}</td>
+                                    <td className="font-semibold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">{contest.title}</td>
+                                    <td className="font-semibold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">{contest.creatorEmail}</td>
                                     <td>
                                         <span className={`badge ${
                                             contest.status === 'approved' ? 'badge-success' :

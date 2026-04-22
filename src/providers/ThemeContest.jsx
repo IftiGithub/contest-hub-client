@@ -3,17 +3,27 @@ import { createContext, useEffect, useState } from "react";
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState("dark"); // Force dark theme
+  const [theme, setTheme] = useState(() => {
+    // Initialize from localStorage or system preference
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) return savedTheme;
+    
+    const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    return systemPrefersDark ? "dark" : "light";
+  });
 
-  // Apply theme to <html>
+  // Apply theme to <html> whenever it changes
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", "dark");
-    localStorage.setItem("theme", "dark");
-  }, []);
+    if (theme === "dark") {
+      document.documentElement.setAttribute("data-theme", "dark");
+    } else {
+      document.documentElement.removeAttribute("data-theme");
+    }
+    localStorage.setItem("theme", theme);
+  }, [theme]);
 
   const toggleTheme = () => {
-    // Keep it dark, or allow toggle if needed
-    // For now, keep dark
+    setTheme((prevTheme) => (prevTheme === "dark" ? "light" : "dark"));
   };
 
   return (

@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import toast from "react-hot-toast";
 import AuthContext from "../../../providers/AuthContext";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -9,7 +9,10 @@ import { motion } from "framer-motion";
 const AddContest = () => {
   const { user } = useContext(AuthContext);
   const queryClient = useQueryClient();
-  const { register, handleSubmit, reset } = useForm();
+  const { register, handleSubmit, reset, watch } = useForm();
+  const [customContestType, setCustomContestType] = useState("");
+  
+  const selectedContestType = watch("contestType");
 
   const addContestMutation = useMutation({
     mutationFn: (data) =>
@@ -17,6 +20,7 @@ const AddContest = () => {
     onSuccess: () => {
       toast.success("Contest added! Waiting for admin approval.");
       reset();
+      setCustomContestType("");
       queryClient.invalidateQueries({ queryKey: ["contests"] });
     },
     onError: (error) => {
@@ -30,10 +34,18 @@ const AddContest = () => {
       return;
     }
 
+    // Determine final contest type
+    let finalContestType = data.contestType;
+    if (data.contestType === "custom" && customContestType.trim()) {
+      finalContestType = customContestType.trim();
+    }
+
     const contestData = {
       ...data,
+      contestType: finalContestType,
       creatorEmail: user.email,
       creatorName: user.displayName || "Unknown",
+      creatorAvatar: user.photoURL || "https://randomuser.me/api/portraits/men/68.jpg",
       deadline: data.deadline,
     };
 
@@ -57,7 +69,7 @@ const AddContest = () => {
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent"
+          className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] bg-clip-text text-transparent"
         >
           ➕ Add New Contest
         </motion.h2>
@@ -70,12 +82,12 @@ const AddContest = () => {
             className="form-control"
           >
             <label className="label">
-              <span className="label-text text-white">Contest Title</span>
+              <span className="label-text bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] bg-clip-text text-transparent font-bold">Contest Title</span>&nbsp;
             </label>
             <input
               {...register("title", { required: true })}
               placeholder="Contest Title"
-              className="input-gamified"
+              className="input-gamified text-white"
             />
           </motion.div>
 
@@ -86,12 +98,12 @@ const AddContest = () => {
             className="form-control"
           >
             <label className="label">
-              <span className="label-text text-white">Image URL</span>
+              <span className="label-text bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] bg-clip-text text-transparent font-bold">Image URL</span> &nbsp;
             </label>
             <input
               {...register("image", { required: true })}
               placeholder="Image URL"
-              className="input-gamified"
+              className="input-gamified text-white"
             />
           </motion.div>
 
@@ -102,7 +114,7 @@ const AddContest = () => {
             className="form-control"
           >
             <label className="label">
-              <span className="label-text text-white">Contest Description</span>
+              <span className="label-text bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] bg-clip-text text-transparent font-bold">Contest Description</span>
             </label>
             <textarea
               {...register("description", { required: true })}
@@ -119,7 +131,7 @@ const AddContest = () => {
             className="form-control"
           >
             <label className="label">
-              <span className="label-text text-white">Task Instruction</span>
+              <span className="label-text bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] bg-clip-text text-transparent font-bold">Task Instruction</span>
             </label>
             <textarea
               {...register("taskInstruction", { required: true })}
@@ -136,18 +148,43 @@ const AddContest = () => {
             className="form-control"
           >
             <label className="label">
-              <span className="label-text text-white">Contest Type</span>
+              <span className="label-text bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] bg-clip-text text-transparent font-bold">Contest Type</span>
             </label>
             <select
               {...register("contestType", { required: true })}
               className="select select-bordered w-full bg-gray-800 border-gray-600 text-white"
             >
-              <option value="" className="bg-gray-800">Select Contest Type</option>
-              <option value="design" className="bg-gray-800">Design</option>
-              <option value="writing" className="bg-gray-800">Article Writing</option>
-              <option value="business" className="bg-gray-800">Business Idea</option>
+              <option value="" className="bg-gray-800 text-white">Select Contest Type</option>
+              <option value="design" className="bg-gray-800 text-white">Design</option>
+              <option value="writing" className="bg-gray-800 text-white">Writing</option>
+              <option value="idea" className="bg-gray-800 text-white">Idea</option>
+              <option value="gaming" className="bg-gray-800 text-white">Gaming</option>
+              <option value="music" className="bg-gray-800 text-white">Music</option>
+              <option value="photography" className="bg-gray-800 text-white">Photography</option>
+              <option value="custom" className="bg-gray-800 text-white">Custom (Enter your own)</option>
             </select>
           </motion.div>
+
+          {selectedContestType === "custom" && (
+            <motion.div
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.95 }}
+              className="form-control"
+            >
+              <label className="label">
+                <span className="label-text bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] bg-clip-text text-transparent font-bold">Custom Contest Type</span>
+              </label>
+              <input
+                type="text"
+                value={customContestType}
+                onChange={(e) => setCustomContestType(e.target.value)}
+                placeholder="Enter your custom contest type"
+                className="input-gamified text-white"
+                required={selectedContestType === "custom"}
+              />
+            </motion.div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <motion.div
@@ -157,13 +194,13 @@ const AddContest = () => {
               className="form-control"
             >
               <label className="label">
-                <span className="label-text text-white">Entry Fee ($)</span>
+                <span className="label-text bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] bg-clip-text text-transparent font-bold">Entry Fee ($)</span>
               </label>
               <input
                 type="number"
                 {...register("price", { required: true })}
                 placeholder="Entry Fee"
-                className="input-gamified"
+                className="input-gamified text-white"
               />
             </motion.div>
 
@@ -174,13 +211,13 @@ const AddContest = () => {
               className="form-control"
             >
               <label className="label">
-                <span className="label-text text-white">Prize Money ($)</span>
+                <span className="label-text bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] bg-clip-text text-transparent font-bold">Prize Money ($)</span> &nbsp;
               </label>
               <input
                 type="number"
                 {...register("prizeMoney", { required: true })}
                 placeholder="Prize Money"
-                className="input-gamified"
+                className="input-gamified text-white"
               />
             </motion.div>
           </div>
@@ -192,12 +229,12 @@ const AddContest = () => {
             className="form-control"
           >
             <label className="label">
-              <span className="label-text text-white">Deadline</span>
+              <span className="label-text bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] bg-clip-text text-transparent font-bold">Deadline</span> &nbsp;
             </label>
             <input
               type="date"
               {...register("deadline", { required: true })}
-              className="input-gamified"
+              className="input-gamified text-white"
             />
           </motion.div>
 

@@ -79,14 +79,17 @@ const ManageUsers = () => {
             transition={{ duration: 0.8 }}
             className="p-6"
         >
-            <motion.h2
-                initial={{ y: -50, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="text-4xl font-bold mb-8 bg-gradient-to-r from-red-400 to-orange-500 bg-clip-text text-transparent"
-            >
-                👥 Manage Users
-            </motion.h2>
+            <div className="flex gap-1 mb-1 items-center">
+                <div className="text-4xl">👥</div>
+                <motion.h2
+                    initial={{ y: -50, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className="text-4xl font-bold mb-8 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent"
+                >
+                    Manage Users
+                </motion.h2>
+            </div>
 
             <motion.div
                 initial={{ y: 50, opacity: 0 }}
@@ -97,7 +100,7 @@ const ManageUsers = () => {
                 <div className="overflow-x-auto">
                     <table className="table w-full">
                         <thead>
-                            <tr className="bg-gradient-to-r from-red-600 to-orange-600 text-white">
+                            <tr className="bg-gradient-to-r from-green-600 to-blue-600 text-white">
                                 <th className="text-center">Name</th>
                                 <th className="text-center">Email</th>
                                 <th className="text-center">Role</th>
@@ -114,7 +117,7 @@ const ManageUsers = () => {
                                     className="hover:bg-gray-800 transition-colors"
                                     whileHover={{ scale: 1.01 }}
                                 >
-                                    <td className="font-semibold text-white flex items-center gap-3">
+                                    <td className="font-semibold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent flex items-center gap-3">
                                         {u.photoURL && (
                                             <motion.img
                                                 src={u.photoURL}
@@ -125,13 +128,12 @@ const ManageUsers = () => {
                                         )}
                                         {u.name}
                                     </td>
-                                    <td className="text-gray-300">{u.email}</td>
+                                    <td className="font-semibold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">{u.email}</td>
                                     <td>
-                                        <span className={`badge ${
-                                            u.role === 'admin' ? 'badge-error' :
-                                            u.role === 'creator' ? 'badge-warning' :
-                                            'badge-info'
-                                        }`}>
+                                        <span className={`badge ${u.role === 'admin' ? 'badge-error' :
+                                                u.role === 'creator' ? 'badge-warning' :
+                                                    'badge-info'
+                                            }`}>
                                             {u.role}
                                         </span>
                                     </td>

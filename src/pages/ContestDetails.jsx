@@ -1,9 +1,10 @@
 import { useParams, useNavigate } from "react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext, useState, useEffect } from "react";
 import AuthContext from "../providers/AuthContext.jsx";
 import Loading from "./Loading.jsx";
 import { secureFetch } from "../api/secureFetch";
+import { updateContestStatusPublic } from "../api/contest_api"; // Add this import
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
 
@@ -11,11 +12,13 @@ const ContestDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
+  const queryClient = useQueryClient();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [taskLink, setTaskLink] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [timeLeft, setTimeLeft] = useState("");
+  const [hasAutoUpdated, setHasAutoUpdated] = useState(false); // Prevent multiple updates
 
   // Fetch contest
   const { data: contest, isLoading, refetch } = useQuery({
@@ -23,6 +26,39 @@ const ContestDetails = () => {
     queryFn: () => secureFetch(`https://contest-hub-server-ashen-two.vercel.app/contests/${id}`),
     enabled: !!id,
   });
+
+  // Mutation to update contest status
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ id, status }) => updateContestStatusPublic(id, status),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["contest", id]);
+      toast.success("Contest status updated");
+    },
+    onError: (error) => {
+      console.error("Failed to update status:", error);
+    },
+  });
+
+  // ===== Check and Update Contest Status =====
+  useEffect(() => {
+    if (!contest || hasAutoUpdated) return;
+
+    const checkAndUpdateStatus = async () => {
+      const now = new Date();
+      const deadline = new Date(contest.deadline);
+      const isDeadlinePassed = now > deadline;
+      
+      // Update status to "completed" if:
+      // 1. Contest has a winner (winner declared) OR
+      // 2. Deadline has passed AND contest is not already completed
+      if ((contest.winnerName || isDeadlinePassed) && contest.status !== "completed") {
+        setHasAutoUpdated(true);
+        await updateStatusMutation.mutateAsync({ id: contest._id, status: "completed" });
+      }
+    };
+
+    checkAndUpdateStatus();
+  }, [contest, hasAutoUpdated]);
 
   // ===== Live Countdown =====
   useEffect(() => {
@@ -65,9 +101,27 @@ const ContestDetails = () => {
   const isContestEnded = new Date(contest.deadline) < new Date();
   const isCreator = contest.creatorEmail === user?.email;
 
+  // ✅ NEW: Check if contest has a winner
+  const hasWinner = !!contest.winnerName;
+
+  // ✅ NEW: Determine if contest is active (no winner AND not ended AND status is approved)
+  const isActive = !hasWinner && !isContestEnded && contest.status === "approved";
+
+  // ✅ NEW: Determine if user can join
+  const canJoin = isActive && !hasJoined && !isCreator;
+
+  // ✅ NEW: Determine if user can submit task
+  const canSubmit = hasJoined && !isCreator && isActive && !hasWinner && !contest.submissions?.some(s => s.email === user?.email);
+
   const handleRegister = async () => {
     if (!user) {
       navigate("/login");
+      return;
+    }
+
+    // ✅ Prevent registration if contest has winner
+    if (hasWinner) {
+      toast.error("This contest has already ended with a winner");
       return;
     }
 
@@ -85,6 +139,13 @@ const ContestDetails = () => {
       toast.error("Please provide a valid task link or description");
       return;
     }
+
+    // ✅ Prevent submission if contest has winner
+    if (hasWinner) {
+      toast.error("Cannot submit task - contest already has a winner");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       await secureFetch(`https://contest-hub-server-ashen-two.vercel.app/contests/${id}/submit-task`, { method: "POST", body: { taskLink } });
@@ -128,6 +189,26 @@ const ContestDetails = () => {
             <div className="absolute top-4 right-4">
               <span className="badge-gamified">{contest.contestType}</span>
             </div>
+            {/* Status Badge */}
+            <div className="absolute top-4 left-4">
+              <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                contest.status === "completed" 
+                  ? "bg-gray-600 text-white" 
+                  : contest.status === "approved"
+                  ? "bg-green-500 text-white"
+                  : "bg-yellow-500 text-white"
+              }`}>
+                {contest.status === "completed" ? "✓ Completed" : contest.status === "approved" ? "🔴 Active" : contest.status}
+              </span>
+            </div>
+            {/* Winner Badge */}
+            {hasWinner && (
+              <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
+                <span className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-4 py-2 rounded-full font-bold shadow-lg flex items-center gap-2">
+                  👑 Winner Declared
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Title Overlay */}
@@ -153,6 +234,21 @@ const ContestDetails = () => {
               </h2>
               <p className="text-[var(--text-secondary)] leading-relaxed">
                 {contest.description}
+              </p>
+            </motion.div>
+
+            {/* Task Instruction */}
+            <motion.div
+              className="card-modern p-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+            >
+              <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4 flex items-center gap-2">
+                <span>📋</span> Task Instruction
+              </h2>
+              <p className="text-[var(--text-secondary)] leading-relaxed whitespace-pre-wrap">
+                {contest.taskInstruction || "No specific instructions provided. Please complete the task as described in the contest guidelines."}
               </p>
             </motion.div>
 
@@ -187,20 +283,22 @@ const ContestDetails = () => {
               </h3>
               <div className="space-y-3">
                 <p className="text-[var(--text-secondary)] text-sm">
-                  Deadline: {new Date(contest.deadline).toLocaleDateString('en-US', { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
+                  Deadline: {new Date(contest.deadline).toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
                   })}
                 </p>
-                {!contest.winnerName && timeLeft !== "Contest Ended" && (
+                {!hasWinner && !isContestEnded && timeLeft !== "Contest Ended" && (
                   <p className="text-2xl font-bold text-[var(--accent-primary)]">
                     {timeLeft}
                   </p>
                 )}
-                {timeLeft === "Contest Ended" && (
-                  <p className="text-xl font-bold text-red-500">✓ Contest Ended</p>
+                {(hasWinner || timeLeft === "Contest Ended") && (
+                  <p className="text-xl font-bold text-red-500">
+                    {hasWinner ? "🏆 Contest Completed - Winner Declared" : "✓ Contest Ended"}
+                  </p>
                 )}
               </div>
             </motion.div>
@@ -216,7 +314,7 @@ const ContestDetails = () => {
               transition={{ delay: 0.3 }}
             >
               <h3 className="text-lg font-bold text-[var(--text-primary)] mb-6">Quick Info</h3>
-              
+
               <div className="space-y-4">
                 <div className="flex items-center gap-3 pb-4 border-b border-[var(--border-light)]">
                   <span className="text-2xl">🎯</span>
@@ -239,7 +337,13 @@ const ContestDetails = () => {
                   <div>
                     <p className="text-xs text-[var(--text-muted)]">Status</p>
                     <p className="font-semibold text-[var(--text-primary)]">
-                      {isContestEnded ? "✓ Ended" : "🔴 Active"}
+                      {contest.status === "completed" 
+                        ? "✓ Completed"
+                        : hasWinner
+                          ? "🏆 Completed"
+                          : isContestEnded
+                            ? "✓ Ended"
+                            : "🔴 Active"}
                     </p>
                   </div>
                 </div>
@@ -248,22 +352,26 @@ const ContestDetails = () => {
               {/* CTA Buttons */}
               <div className="mt-6 space-y-3">
                 <motion.button
-                  className="btn-gamified w-full"
+                  className={`btn-gamified w-full ${(!canJoin && !hasJoined && !isCreator) || contest.status === "completed" ? "opacity-50 cursor-not-allowed" : ""}`}
                   onClick={handleRegister}
-                  disabled={isContestEnded || hasJoined || isCreator}
-                  whileHover={isContestEnded || hasJoined || isCreator ? {} : { scale: 1.02 }}
-                  whileTap={isContestEnded || hasJoined || isCreator ? {} : { scale: 0.98 }}
+                  disabled={(!canJoin && !hasJoined && !isCreator) || contest.status === "completed"}
+                  whileHover={canJoin ? { scale: 1.02 } : {}}
+                  whileTap={canJoin ? { scale: 0.98 } : {}}
                 >
-                  {isContestEnded
-                    ? "⏱️ Contest Ended"
-                    : hasJoined
-                      ? "✅ Already Joined"
-                      : isCreator
-                        ? "👤 Creator"
-                        : "🚀 Join Now"}
+                  {contest.status === "completed"
+                    ? "✓ Contest Completed"
+                    : hasWinner
+                      ? "🏆 Contest Completed"
+                      : isContestEnded
+                        ? "⏱️ Contest Ended"
+                        : hasJoined
+                          ? "✅ Already Joined"
+                          : isCreator
+                            ? "👤 Creator"
+                            : "🚀 Join Now"}
                 </motion.button>
 
-                {hasJoined && !isContestEnded && !isCreator && !hasSubmitted && (
+                {canSubmit && contest.status !== "completed" && (
                   <motion.button
                     className="w-full py-2.5 px-4 border-2 border-[var(--accent-secondary)] text-[var(--accent-secondary)] rounded-lg hover:bg-[var(--accent-secondary)]/10 font-medium transition-all"
                     onClick={() => setIsModalOpen(true)}
@@ -274,43 +382,37 @@ const ContestDetails = () => {
                   </motion.button>
                 )}
 
-                {hasSubmitted && (
+                {hasSubmitted && !hasWinner && contest.status !== "completed" && (
                   <div className="p-3 bg-[var(--accent-secondary)]/10 border border-[var(--accent-secondary)]/30 rounded-lg text-center">
                     <p className="text-sm font-medium text-[var(--accent-secondary)]">
                       ✓ Task Submitted
                     </p>
                   </div>
                 )}
+
+                {hasWinner && (
+                  <div className="mt-4 p-4 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-lg border border-yellow-500/30">
+                    <h3 className="text-lg font-bold text-[var(--text-primary)] mb-3 flex items-center gap-2">
+                      <span>👑</span> Winner Announced!
+                    </h3>
+                    <div className="flex items-center gap-4">
+                      {contest.winnerImage && (
+                        <motion.img
+                          src={contest.winnerImage}
+                          alt={contest.winnerName}
+                          className="w-16 h-16 rounded-full border-2 border-[#facc15] object-cover"
+                          whileHover={{ scale: 1.1 }}
+                        />
+                      )}
+                      <div>
+                        <p className="font-bold text-[var(--text-primary)]">{contest.winnerName}</p>
+                        <p className="text-sm text-gradient">🏆 Prize Winner</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </motion.div>
-
-            {/* Winner Section */}
-            {contest.winnerName && (
-              <motion.div
-                className="card-modern p-6 bg-gradient-to-br from-[#facc15]/10 to-[#f59e0b]/10 border border-[#facc15]/20"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-              >
-                <h3 className="text-lg font-bold text-[var(--text-primary)] mb-4 flex items-center gap-2">
-                  <span>👑</span> Winner
-                </h3>
-                <div className="flex items-center gap-4">
-                  {contest.winnerImage && (
-                    <motion.img
-                      src={contest.winnerImage}
-                      alt={contest.winnerName}
-                      className="w-16 h-16 rounded-full border-2 border-[#facc15] object-cover"
-                      whileHover={{ scale: 1.1 }}
-                    />
-                  )}
-                  <div>
-                    <p className="font-bold text-[var(--text-primary)]">{contest.winnerName}</p>
-                    <p className="text-sm text-gradient">🏆 Prize Winner</p>
-                  </div>
-                </div>
-              </motion.div>
-            )}
           </div>
         </div>
 
@@ -352,6 +454,7 @@ const ContestDetails = () => {
                   placeholder="Paste your task link or describe your submission..."
                   value={taskLink}
                   onChange={(e) => setTaskLink(e.target.value)}
+                  disabled={hasWinner || contest.status === "completed"}
                 />
               </div>
 
@@ -367,12 +470,16 @@ const ContestDetails = () => {
 
                 <motion.button
                   onClick={handleSubmitTask}
-                  disabled={isSubmitting}
-                  className={`flex-1 btn-gamified ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
-                  whileHover={isSubmitting ? {} : { scale: 1.02 }}
-                  whileTap={isSubmitting ? {} : { scale: 0.98 }}
+                  disabled={isSubmitting || hasWinner || contest.status === "completed"}
+                  className={`flex-1 btn-gamified ${(isSubmitting || hasWinner || contest.status === "completed") ? "opacity-50 cursor-not-allowed" : ""}`}
+                  whileHover={(!isSubmitting && !hasWinner && contest.status !== "completed") ? { scale: 1.02 } : {}}
+                  whileTap={(!isSubmitting && !hasWinner && contest.status !== "completed") ? { scale: 0.98 } : {}}
                 >
-                  {isSubmitting ? "⏳ Submitting..." : "✓ Submit"}
+                  {contest.status === "completed" || hasWinner
+                    ? "🏆 Contest Completed"
+                    : isSubmitting
+                      ? "⏳ Submitting..."
+                      : "✓ Submit"}
                 </motion.button>
               </div>
             </div>

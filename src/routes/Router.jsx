@@ -7,6 +7,7 @@ import Login from "../pages/Login";
 import Registration from "../pages/Registration";
 import PrivateRoute from "./PrivateRoute";
 import DashboardLayout from "../pages/Dashboard/DashboardLayout";
+import DashboardHome from "../pages/Dashboard/DashboardHome";
 import ManageContests from "../pages/Dashboard/Admin/ManageContests";
 import ManageUsers from "../pages/Dashboard/Admin/ManageUsers";
 import MyCreatedContests from "../pages/Dashboard/Creator/MyCreatedContests";
@@ -89,7 +90,7 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element:<div className="text-5xl text-center m-10">Welcome to Dashboard!</div>
+        element: <DashboardHome />
       },
       { path: "profile", element: <MyProfile /> },
       { path: "participated", element: <MyParticipatedContests /> },

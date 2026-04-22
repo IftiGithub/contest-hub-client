@@ -41,14 +41,17 @@ const MyParticipatedContests = () => {
       transition={{ duration: 0.8 }}
       className="space-y-6 p-6"
     >
-      <motion.h2
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="text-4xl font-bold mb-8 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent"
-      >
-        🎯 My Participated Contests
-      </motion.h2>
+      <div className="flex gap-1 items-center">
+        <div className="text-4xl">🎯</div>
+        <motion.h2
+          initial={{ y: -50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="text-4xl font-bold mb-8 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent"
+        >
+          My Participated Contests
+        </motion.h2>
+      </div>
 
       <div className="grid gap-6">
         {contests.map((contest, index) => (
@@ -68,7 +71,7 @@ const MyParticipatedContests = () => {
                 whileHover={{ scale: 1.05 }}
               />
               <div className="flex-1">
-                <h3 className="text-xl font-bold text-white mb-2">{contest.title}</h3>
+                <h3 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent mb-2">{contest.title}</h3>
                 <p className="text-gray-300 mb-3">{contest.description?.slice(0, 100)}...</p>
                 <div className="flex items-center gap-4 text-sm text-gray-400 mb-4">
                   <span>⏰ Deadline: {new Date(contest.deadline).toLocaleDateString()}</span>

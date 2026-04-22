@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from "react-router";
+import { Link, NavLink, Outlet } from "react-router";
 import { useContext } from "react";
 import AuthContext from "../../providers/AuthContext";
 import useDbUser from "../../hooks/useDbUser";
@@ -35,9 +35,9 @@ const DashboardLayout = () => {
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="text-2xl font-bold mb-4 bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent"
         >
-          Dashboard
+          <Link to="/dashboard" className="text-2xl font-bold mb-4 bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent"
+          >Dashboard</Link>
         </motion.h2>
 
         {/* Debug info */}
@@ -63,10 +63,9 @@ const DashboardLayout = () => {
             <NavLink
               to="/"
               className={({ isActive }) =>
-                `block px-4 py-2 rounded-lg transition-colors ${
-                  isActive
-                    ? "bg-green-600 text-white"
-                    : "hover:bg-gray-800 text-gray-300"
+                `block px-4 py-2 rounded-lg transition-colors ${isActive
+                  ? "bg-green-600 text-white"
+                  : "hover:bg-gray-800 text-gray-300"
                 }`
               }
             >
@@ -81,10 +80,9 @@ const DashboardLayout = () => {
             <NavLink
               to="profile"
               className={({ isActive }) =>
-                `block px-4 py-2 rounded-lg transition-colors ${
-                  isActive
-                    ? "bg-green-600 text-white"
-                    : "hover:bg-gray-800 text-gray-300"
+                `block px-4 py-2 rounded-lg transition-colors ${isActive
+                  ? "bg-green-600 text-white"
+                  : "hover:bg-gray-800 text-gray-300"
                 }`
               }
             >
@@ -99,10 +97,9 @@ const DashboardLayout = () => {
             <NavLink
               to="participated"
               className={({ isActive }) =>
-                `block px-4 py-2 rounded-lg transition-colors ${
-                  isActive
-                    ? "bg-green-600 text-white"
-                    : "hover:bg-gray-800 text-gray-300"
+                `block px-4 py-2 rounded-lg transition-colors ${isActive
+                  ? "bg-green-600 text-white"
+                  : "hover:bg-gray-800 text-gray-300"
                 }`
               }
             >
@@ -117,10 +114,9 @@ const DashboardLayout = () => {
             <NavLink
               to="winning"
               className={({ isActive }) =>
-                `block px-4 py-2 rounded-lg transition-colors ${
-                  isActive
-                    ? "bg-green-600 text-white"
-                    : "hover:bg-gray-800 text-gray-300"
+                `block px-4 py-2 rounded-lg transition-colors ${isActive
+                  ? "bg-green-600 text-white"
+                  : "hover:bg-gray-800 text-gray-300"
                 }`
               }
             >
@@ -145,10 +141,9 @@ const DashboardLayout = () => {
                 <NavLink
                   to="add-contest"
                   className={({ isActive }) =>
-                    `block px-4 py-2 rounded-lg transition-colors ${
-                      isActive
-                        ? "bg-purple-600 text-white"
-                        : "hover:bg-gray-800 text-gray-300"
+                    `block px-4 py-2 rounded-lg transition-colors ${isActive
+                      ? "bg-purple-600 text-white"
+                      : "hover:bg-gray-800 text-gray-300"
                     }`
                   }
                 >
@@ -163,10 +158,9 @@ const DashboardLayout = () => {
                 <NavLink
                   to="my-contests"
                   className={({ isActive }) =>
-                    `block px-4 py-2 rounded-lg transition-colors ${
-                      isActive
-                        ? "bg-purple-600 text-white"
-                        : "hover:bg-gray-800 text-gray-300"
+                    `block px-4 py-2 rounded-lg transition-colors ${isActive
+                      ? "bg-purple-600 text-white"
+                      : "hover:bg-gray-800 text-gray-300"
                     }`
                   }
                 >
@@ -193,10 +187,9 @@ const DashboardLayout = () => {
                 <NavLink
                   to="manage-users"
                   className={({ isActive }) =>
-                    `block px-4 py-2 rounded-lg transition-colors ${
-                      isActive
-                        ? "bg-red-600 text-white"
-                        : "hover:bg-gray-800 text-gray-300"
+                    `block px-4 py-2 rounded-lg transition-colors ${isActive
+                      ? "bg-red-600 text-white"
+                      : "hover:bg-gray-800 text-gray-300"
                     }`
                   }
                 >
@@ -211,10 +204,9 @@ const DashboardLayout = () => {
                 <NavLink
                   to="manage-contests"
                   className={({ isActive }) =>
-                    `block px-4 py-2 rounded-lg transition-colors ${
-                      isActive
-                        ? "bg-red-600 text-white"
-                        : "hover:bg-gray-800 text-gray-300"
+                    `block px-4 py-2 rounded-lg transition-colors ${isActive
+                      ? "bg-red-600 text-white"
+                      : "hover:bg-gray-800 text-gray-300"
                     }`
                   }
                 >

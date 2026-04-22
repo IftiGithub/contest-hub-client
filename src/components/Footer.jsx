@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import logo from "../assets/logo2-removebg-preview.png";
 
 const Footer = () => {
     return (
@@ -19,10 +20,10 @@ const Footer = () => {
                         className="space-y-4"
                     >
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-[var(--accent-primary)] rounded-xl flex items-center justify-center">
-                                <span className="text-white font-bold text-lg">🎯</span>
+                            <div className="w-10 h-10 flex items-center justify-center">
+                                <span><img src={logo} alt="ContestHub Logo" /></span>
                             </div>
-                            <span className="text-xl font-semibold text-[var(--text-primary)]">ContestHub</span>
+                            <span className="text-xl font-semibold bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] bg-clip-text text-transparent">ContestHub</span>
                         </div>
                         <p className="text-[var(--text-secondary)] leading-relaxed">
                             Empowering creativity through competitive challenges. Join thousands of creators worldwide.

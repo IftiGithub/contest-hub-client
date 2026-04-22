@@ -2,38 +2,14 @@ import React, { useContext, useEffect, useState } from "react";
 import logo from "../assets/logo2-removebg-preview.png";
 import { Link, NavLink } from "react-router";
 import AuthContext from "../providers/AuthContext";
+import ThemeContext from "../providers/ThemeContest";
 import { motion } from "framer-motion";
 
 const Navbar = () => {
     const { user, logout } = useContext(AuthContext);
-    const [isDark, setIsDark] = useState(false);
-
-    // Initialize theme from system preference
-    useEffect(() => {
-        const savedTheme = localStorage.getItem('theme');
-        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-        if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
-            setIsDark(true);
-            document.documentElement.setAttribute('data-theme', 'dark');
-        } else {
-            setIsDark(false);
-            document.documentElement.removeAttribute('data-theme');
-        }
-    }, []);
-
-    const toggleTheme = () => {
-        const newTheme = !isDark;
-        setIsDark(newTheme);
-
-        if (newTheme) {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            localStorage.setItem('theme', 'dark');
-        } else {
-            document.documentElement.removeAttribute('data-theme');
-            localStorage.setItem('theme', 'light');
-        }
-    };
+    const { theme, toggleTheme } = useContext(ThemeContext);
+    const isDark = theme === "dark";
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     const handleLogout = () => {
         logout()
@@ -175,16 +151,52 @@ const Navbar = () => {
                         )}
 
                         {/* Mobile Menu Button */}
-                        <div className="lg:hidden">
-                            <button className="p-2 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-accent)]">
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                                </svg>
-                            </button>
-                        </div>
+                        <button 
+                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                            className="lg:hidden p-2 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-accent)]"
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={mobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
+                            </svg>
+                        </button>
                     </div>
                 </div>
             </div>
+
+            {/* Mobile Menu */}
+            {mobileMenuOpen && (
+                <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="lg:hidden border-t border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-xl"
+                >
+                    <div className="px-4 py-4 space-y-2">
+                        {[
+                            { to: "/", label: "Home" },
+                            { to: "/all-contest", label: "All Contests" },
+                            { to: "/leaderboard", label: "Leaderboard" },
+                            { to: "/top-creators", label: "Top Creators" },
+                            { to: "/upcoming", label: "Upcoming" }
+                        ].map((item) => (
+                            <NavLink
+                                key={item.to}
+                                to={item.to}
+                                onClick={() => setMobileMenuOpen(false)}
+                                className={({ isActive }) =>
+                                    `block px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                                        isActive
+                                            ? "bg-[var(--accent-primary)] text-white"
+                                            : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-accent)]"
+                                    }`
+                                }
+                            >
+                                {item.label}
+                            </NavLink>
+                        ))}
+                    </div>
+                </motion.div>
+            )}
         </motion.nav>
     );
 };

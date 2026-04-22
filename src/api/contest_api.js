@@ -67,6 +67,11 @@ export const getApprovedContests = async () => {
   if (!res.ok) throw new Error("Failed to fetch contests");
   return res.json();
 };
+export const getContests = async () => {
+  const res = await fetch(`${API}/Allcontests`);
+  if (!res.ok) throw new Error("Failed to fetch contests");
+  return res.json();
+};
 
 // Get popular contests (top 5)
 export const getPopularContests = async () => {
@@ -117,5 +122,12 @@ export const getRecentWinners = async () => {
   } catch (error) {
     return [];
   }
+};
+// Update contest status (public/creator endpoint)
+export const updateContestStatusPublic = async (id, status) => {
+  return await secureFetch(`${API}/contests/${id}/status`, {
+    method: "PATCH",
+    body: { status },
+  });
 };
 

@@ -98,14 +98,17 @@ const MyCreatedContests = () => {
             transition={{ duration: 0.8 }}
             className="p-6"
         >
-            <motion.h2
-                initial={{ y: -50, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="text-4xl font-bold mb-8 bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent"
-            >
-                📋 My Created Contests
-            </motion.h2>
+            <div className="flex gap-1">
+                <div className="text-4xl">📋</div>
+                <motion.h2
+                    initial={{ y: -50, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className="text-4xl font-bold mb-8 bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] bg-clip-text text-transparent"
+                >
+                    My Created Contests
+                </motion.h2>
+            </div>
 
             <motion.div
                 initial={{ y: 50, opacity: 0 }}
@@ -116,7 +119,7 @@ const MyCreatedContests = () => {
                 <div className="overflow-x-auto">
                     <table className="table w-full">
                         <thead>
-                            <tr className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+                            <tr className="bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] font-bold text-white">
                                 <th className="text-center">Title</th>
                                 <th className="text-center">Status</th>
                                 <th className="text-center">Participants</th>
@@ -133,13 +136,12 @@ const MyCreatedContests = () => {
                                     className="hover:bg-gray-800 transition-colors"
                                     whileHover={{ scale: 1.01 }}
                                 >
-                                    <td className="font-semibold text-white">{contest.title}</td>
+                                    <td className="font-semibold bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] bg-clip-text text-transparent">{contest.title}</td>
                                     <td>
-                                        <span className={`badge ${
-                                            contest.status === 'approved' ? 'badge-success' :
-                                            contest.status === 'pending' ? 'badge-warning' :
-                                            'badge-error'
-                                        }`}>
+                                        <span className={`badge ${contest.status === 'approved' ? 'badge-success' :
+                                                contest.status === 'pending' ? 'badge-warning' :
+                                                    'badge-error'
+                                            }`}>
                                             {contest.status}
                                         </span>
                                     </td>

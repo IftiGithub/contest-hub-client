@@ -91,14 +91,14 @@ const MyProfile = () => {
         transition={{ delay: 0.2 }}
         className="card-gamified p-8"
       >
-        <h2 className="text-3xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+        <h2 className="text-3xl font-bold mb-6 bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] bg-clip-text text-transparent text-center">
           👤 My Profile
         </h2>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="form-control">
             <label className="label">
-              <span className="label-text text-white text-lg">Name</span>
+              <span className="label-text bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] bg-clip-text text-transparent font-bold text-2xl">Name</span> &nbsp;
             </label>
             <input
               className="input-gamified"
@@ -109,7 +109,7 @@ const MyProfile = () => {
 
           <div className="form-control">
             <label className="label">
-              <span className="label-text text-white text-lg">Image</span>
+              <span className="label-text bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] bg-clip-text text-transparent font-bold text-2xl">Image</span> &nbsp;
             </label>
             <input
               className="input-gamified"
@@ -120,7 +120,7 @@ const MyProfile = () => {
 
           <div className="form-control">
             <label className="label">
-              <span className="label-text text-white text-lg">Bio</span>
+              <span className="label-text bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] bg-clip-text text-transparent font-bold text-2xl">Bio</span> &nbsp;
             </label>
             <textarea
               className="textarea textarea-bordered w-full bg-gray-800 border-gray-600 text-white placeholder-gray-400"
