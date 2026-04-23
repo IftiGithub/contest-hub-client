@@ -173,7 +173,7 @@ const AllContest = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
             >
-                <div className="text-center">
+                <div className="flex flex-col items-center justify-center">
                     <div className="inline-flex items-center gap-3 mb-6 justify-center">
                         <div className="w-12 h-12 bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] rounded-xl flex items-center justify-center shadow-lg">
                             <span className="text-xl">🎨</span>

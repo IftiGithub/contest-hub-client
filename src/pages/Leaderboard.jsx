@@ -51,17 +51,19 @@ const Leaderboard = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="inline-flex items-center gap-3 mb-6 justify-center">
-            <div className="w-12 h-12 bg-gradient-to-br from-[#facc15] to-[#f59e0b] rounded-xl flex items-center justify-center shadow-lg">
-              <span className="text-2xl">🏆</span>
+          <div className="flex flex-col justify-center items-center">
+            <div className="inline-flex items-center gap-3 mb-6 justify-center">
+              <div className="w-12 h-12 bg-gradient-to-br from-[#facc15] to-[#f59e0b] rounded-xl flex items-center justify-center shadow-lg">
+                <span className="text-2xl">🏆</span>
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold text-[var(--text-primary)]">
+                Leaderboard
+              </h1>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-[var(--text-primary)]">
-              Leaderboard
-            </h1>
+            <p className="text-[var(--text-secondary)] max-w-2xl mx-auto">
+              Top performers and competition winners
+            </p>
           </div>
-          <p className="text-[var(--text-secondary)] max-w-2xl mx-auto">
-            Top performers and competition winners
-          </p>
         </motion.div>
 
         {/* Leaderboard Stats */}
@@ -124,7 +126,7 @@ const Leaderboard = () => {
                   {users.map((user, index) => {
                     const rank = (page - 1) * ITEMS_PER_PAGE + index + 1;
                     const medalEmoji = rank === 1 ? "👑" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : "🎖️";
-                    
+
                     return (
                       <motion.tr
                         key={user.email}
@@ -189,11 +191,10 @@ const Leaderboard = () => {
           <motion.button
             onClick={() => setPage((prev) => prev - 1)}
             disabled={page === 1}
-            className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
-              page === 1
+            className={`px-6 py-2.5 rounded-lg font-medium transition-all ${page === 1
                 ? "bg-[var(--bg-secondary)] text-[var(--text-muted)] cursor-not-allowed border border-[var(--border-light)]"
                 : "btn-gamified hover:scale-105"
-            }`}
+              }`}
             whileHover={page !== 1 ? { scale: 1.05 } : {}}
             whileTap={page !== 1 ? { scale: 0.95 } : {}}
           >
@@ -209,11 +210,10 @@ const Leaderboard = () => {
           <motion.button
             onClick={() => setPage((prev) => prev + 1)}
             disabled={page === totalPages}
-            className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
-              page === totalPages
+            className={`px-6 py-2.5 rounded-lg font-medium transition-all ${page === totalPages
                 ? "bg-[var(--bg-secondary)] text-[var(--text-muted)] cursor-not-allowed border border-[var(--border-light)]"
                 : "btn-gamified hover:scale-105"
-            }`}
+              }`}
             whileHover={page !== totalPages ? { scale: 1.05 } : {}}
             whileTap={page !== totalPages ? { scale: 0.95 } : {}}
           >

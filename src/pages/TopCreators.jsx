@@ -30,17 +30,19 @@ const TopCreators = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="inline-flex items-center gap-3 mb-6 justify-center">
-            <div className="w-12 h-12 bg-gradient-to-br from-[#ec4899] to-[#a855f7] rounded-xl flex items-center justify-center shadow-lg">
-              <span className="text-2xl">🌟</span>
+          <div className="flex flex-col justify-center items-center">
+            <div className="inline-flex items-center gap-3 mb-6 justify-center">
+              <div className="w-12 h-12 bg-gradient-to-br from-[#ec4899] to-[#a855f7] rounded-xl flex items-center justify-center shadow-lg">
+                <span className="text-2xl">🌟</span>
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold text-[var(--text-primary)]">
+                Top Creators
+              </h1>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-[var(--text-primary)]">
-              Top Creators
-            </h1>
+            <p className="text-[var(--text-secondary)] max-w-2xl mx-auto">
+              Meet the most innovative contest creators on the platform
+            </p>
           </div>
-          <p className="text-[var(--text-secondary)] max-w-2xl mx-auto">
-            Meet the most innovative contest creators on the platform
-          </p>
         </motion.div>
 
         {/* Stats Grid */}
@@ -87,7 +89,7 @@ const TopCreators = () => {
               <tbody>
                 {data.map((creator, index) => {
                   const medalEmoji = index === 0 ? "👑" : index === 1 ? "🥈" : index === 2 ? "🥉" : "🎖️";
-                  
+
                   return (
                     <motion.tr
                       key={creator.email}

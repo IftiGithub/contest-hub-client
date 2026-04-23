@@ -34,7 +34,7 @@ const Upcoming = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <div className="text-center">
+        <div className="flex flex-col justify-center items-center">
           <div className="inline-flex items-center gap-3 mb-6 justify-center">
             <div className="w-12 h-12 bg-gradient-to-br from-[#facc15] to-[#d97706] rounded-xl flex items-center justify-center shadow-lg">
               <span className="text-xl">⏳</span>
