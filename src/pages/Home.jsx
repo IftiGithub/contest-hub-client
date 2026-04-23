@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Loading from "./Loading";
 import {
     getRecentWinners,
@@ -20,6 +20,103 @@ import "swiper/css/navigation";
 import "swiper/css/effect-fade";
 import { Typewriter } from "react-simple-typewriter";
 import Marquee from "react-fast-marquee";
+
+// Custom hook for scroll animations
+const useScrollAnimation = () => {
+    const [refs, setRefs] = useState({});
+    const [inView, setInView] = useState({});
+
+    useEffect(() => {
+        const observers = {};
+        
+        Object.keys(refs).forEach((key) => {
+            if (refs[key]) {
+                const observer = new IntersectionObserver(
+                    (entries) => {
+                        entries.forEach((entry) => {
+                            setInView((prev) => ({
+                                ...prev,
+                                [key]: entry.isIntersecting,
+                            }));
+                        });
+                    },
+                    { threshold: 0.2, triggerOnce: true }
+                );
+                observer.observe(refs[key]);
+                observers[key] = observer;
+            }
+        });
+
+        return () => {
+            Object.values(observers).forEach((observer) => observer.disconnect());
+        };
+    }, [refs]);
+
+    const setRef = (key, element) => {
+        if (element && !refs[key]) {
+            setRefs((prev) => ({ ...prev, [key]: element }));
+        }
+    };
+
+    return { setRef, inView };
+};
+
+// Animation variants
+const fadeInUp = {
+    hidden: { opacity: 0, y: 60 },
+    visible: { 
+        opacity: 1, 
+        y: 0,
+        transition: { duration: 0.8, ease: "easeOut" }
+    }
+};
+
+const fadeInLeft = {
+    hidden: { opacity: 0, x: -80 },
+    visible: { 
+        opacity: 1, 
+        x: 0,
+        transition: { duration: 0.8, ease: "easeOut" }
+    }
+};
+
+const fadeInRight = {
+    hidden: { opacity: 0, x: 80 },
+    visible: { 
+        opacity: 1, 
+        x: 0,
+        transition: { duration: 0.8, ease: "easeOut" }
+    }
+};
+
+const scaleUp = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: { 
+        opacity: 1, 
+        scale: 1,
+        transition: { duration: 0.6, ease: "easeOut" }
+    }
+};
+
+const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.15,
+            delayChildren: 0.2
+        }
+    }
+};
+
+const staggerItem = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { 
+        opacity: 1, 
+        y: 0,
+        transition: { duration: 0.6, ease: "easeOut" }
+    }
+};
 
 const features = [
     {
@@ -55,6 +152,7 @@ const Home = () => {
     const navigate = useNavigate();
     const [searchText, setSearchText] = useState("");
     const [currentSlide, setCurrentSlide] = useState(0);
+    const { setRef, inView } = useScrollAnimation();
 
     // ================= SLIDER AUTO PLAY =================
     useEffect(() => {
@@ -65,7 +163,6 @@ const Home = () => {
     }, []);
 
     // ================= API CALLS =================
-    // Fetch ALL contests (including pending, approved, completed, rejected)
     const { data: allContests = [], isLoading, error } = useQuery({
         queryKey: ["AllContests"],
         queryFn: getContests,
@@ -82,7 +179,7 @@ const Home = () => {
         staleTime: 1000 * 60 * 5,
     });
 
-    // Debug logging (remove in production)
+    // Debug logging
     useEffect(() => {
         if (allContests.length > 0) {
             console.log("📊 Total contests fetched:", allContests.length);
@@ -97,7 +194,7 @@ const Home = () => {
         }
     }, [allContests, error]);
 
-    // 1. Hot & Trending: Don't show completed contests, sort by participants count (highest first) - show top 5
+    // Contest filters
     const hotAndTrending = [...allContests]
         .filter(contest => contest.status !== "completed" && contest.status === "approved")
         .sort((a, b) => {
@@ -107,7 +204,6 @@ const Home = () => {
         })
         .slice(0, 5);
 
-    // 2. Recently Added: Show ALL contests, sort by createdAt (newest first) - show top 5
     const recentlyAdded = [...allContests]
         .sort((a, b) => {
             const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
@@ -116,7 +212,6 @@ const Home = () => {
         })
         .slice(0, 5);
 
-    // 3. Popular Contests: Show ALL contests, sort by participants count (highest first) - show top 5
     const popularContests = [...allContests]
         .sort((a, b) => {
             const participantsA = Array.isArray(a.participants) ? a.participants.length : 0;
@@ -125,7 +220,6 @@ const Home = () => {
         })
         .slice(0, 5);
 
-    // ================= SEARCH HANDLER =================
     const handleSearch = () => {
         if (!searchText.trim()) return;
         navigate(`/all-contest?search=${encodeURIComponent(searchText)}`);
@@ -136,8 +230,9 @@ const Home = () => {
     return (
         <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] overflow-hidden">
 
-            {/* ================= HERO ================= */}
+            {/* ================= HERO (No scroll animation - stays static) ================= */}
             <section className="relative h-[90vh] overflow-hidden">
+                {/* ... hero section remains the same ... */}
                 <Swiper
                     modules={[Autoplay, Pagination, Navigation, EffectFade]}
                     effect="fade"
@@ -280,32 +375,72 @@ const Home = () => {
                     ))}
                 </Swiper>
             </section>
-            <RecentContestsTab></RecentContestsTab>
-            <CategoryShowcase />
-            <LiveStatsSection />
+
+            {/* Recent Contests Tab - Fade Up */}
+            <motion.div
+                ref={(el) => setRef("recentTab", el)}
+                initial="hidden"
+                animate={inView.recentTab ? "visible" : "hidden"}
+                variants={fadeInUp}
+            >
+                <RecentContestsTab />
+            </motion.div>
+
+            {/* Category Showcase - Stagger Items */}
+            <motion.div
+                ref={(el) => setRef("category", el)}
+                initial="hidden"
+                animate={inView.category ? "visible" : "hidden"}
+                variants={staggerContainer}
+            >
+                <CategoryShowcase />
+            </motion.div>
+
+            {/* Live Stats Section - Scale Up */}
+            <motion.div
+                ref={(el) => setRef("liveStats", el)}
+                initial="hidden"
+                animate={inView.liveStats ? "visible" : "hidden"}
+                variants={scaleUp}
+            >
+                <LiveStatsSection />
+            </motion.div>
+
             {/* ================= POPULAR CONTESTS SECTION ================= */}
             {popularContests.length > 0 && (
-                <section className="py-24 px-4 relative overflow-hidden">
+                <motion.section 
+                    ref={(el) => setRef("popularContests", el)}
+                    initial="hidden"
+                    animate={inView.popularContests ? "visible" : "hidden"}
+                    variants={fadeInUp}
+                    className="py-24 px-4 relative overflow-hidden"
+                >
                     <div className="max-w-7xl mx-auto relative z-10">
-                        <div className="flex flex-col items-center md:justify-center mb-16">
-                            <div className="flex items-center gap-3">
+                        <motion.div 
+                            variants={staggerContainer}
+                            className="flex flex-col items-center md:justify-center mb-16"
+                        >
+                            <motion.div variants={staggerItem} className="flex items-center gap-3">
                                 <span className="text-4xl">⭐</span>
                                 <h2 className="text-4xl md:text-5xl font-bold">
                                     <span className="bg-gradient-to-br from-[#ec4899] to-[#a855f7] bg-clip-text text-transparent">
                                         Popular Contests
                                     </span>
                                 </h2>
-                            </div>
-                            <p className="text-gray-400 mt-2">Most participated contests of all time</p>
-                        </div>
+                            </motion.div>
+                            <motion.p variants={staggerItem} className="text-gray-400 mt-2">
+                                Most participated contests of all time
+                            </motion.p>
+                        </motion.div>
 
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <motion.div 
+                            variants={staggerContainer}
+                            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+                        >
                             {popularContests.map((contest, index) => (
                                 <motion.div
                                     key={contest._id}
-                                    initial={{ opacity: 0, y: 40 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: index * 0.1 }}
+                                    variants={staggerItem}
                                     whileHover={{ y: -8, scale: 1.02 }}
                                     className="group relative rounded-2xl overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 hover:border-purple-400/40 hover:shadow-[0_0_40px_rgba(168,85,247,0.25)] transition-all duration-300"
                                 >
@@ -317,12 +452,10 @@ const Home = () => {
                                         />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
 
-                                        {/* Popular Badge */}
                                         <div className="absolute top-4 left-4 px-3 py-1 text-xs rounded-full bg-purple-500/80 text-white backdrop-blur">
                                             ⭐ #{index + 1} Popular
                                         </div>
 
-                                        {/* Status Badge */}
                                         {contest.status === "completed" && (
                                             <div className="absolute top-4 right-4 px-2 py-1 text-xs rounded-full bg-gray-600/80 text-white backdrop-blur">
                                                 ✓ Completed
@@ -339,7 +472,6 @@ const Home = () => {
                                             </div>
                                         )}
 
-                                        {/* Participant Count Badge */}
                                         {contest.participants?.length > 0 && (
                                             <div className="absolute bottom-4 right-4 px-2 py-1 text-xs rounded-full bg-black/60 text-white backdrop-blur">
                                                 👥 {contest.participants.length} participants
@@ -348,25 +480,18 @@ const Home = () => {
                                     </div>
 
                                     <div className="p-6 space-y-3">
-                                        {/* Title */}
                                         <h3 className="text-xl font-semibold group-hover:text-purple-400 transition line-clamp-1">
                                             {contest.title}
                                         </h3>
-
-                                        {/* Description */}
                                         <p className="text-sm text-gray-400 line-clamp-2">
                                             {contest.description?.slice(0, 100)}...
                                         </p>
-
-                                        {/* Creator Info */}
                                         <div className="flex items-center gap-2 text-xs text-gray-400 pt-1">
                                             <span>👨‍🎨 Created by:</span>
                                             <span className="text-purple-400 font-medium">
                                                 {contest.creatorName || "Anonymous"}
                                             </span>
                                         </div>
-
-                                        {/* Creation Date */}
                                         <div className="flex items-center gap-2 text-xs text-gray-500">
                                             <span>📅 Posted:</span>
                                             <span>
@@ -380,8 +505,6 @@ const Home = () => {
                                                 }
                                             </span>
                                         </div>
-
-                                        {/* Deadline */}
                                         {contest.deadline && contest.status !== "completed" && (
                                             <div className="flex items-center gap-2 text-xs text-gray-500">
                                                 <span>⏰ Deadline:</span>
@@ -395,8 +518,6 @@ const Home = () => {
                                                 </span>
                                             </div>
                                         )}
-
-                                        {/* Stats Row */}
                                         <div className="flex justify-between items-center pt-3 border-t border-white/10">
                                             <div className="flex items-center gap-2">
                                                 <span className="text-yellow-400">⭐</span>
@@ -411,8 +532,6 @@ const Home = () => {
                                                 </span>
                                             </div>
                                         </div>
-
-                                        {/* CTA Button */}
                                         <Link to={`/contest/${contest._id}`} className="block mt-4">
                                             <motion.button
                                                 whileHover={{ scale: 1.02 }}
@@ -426,55 +545,73 @@ const Home = () => {
                                     </div>
                                 </motion.div>
                             ))}
-                        </div>
+                        </motion.div>
 
-                        {/* View All Link */}
-                        <div className="text-center mt-14">
+                        <motion.div 
+                            variants={staggerItem}
+                            className="text-center mt-14"
+                        >
                             <Link
                                 to="/all-contest"
                                 className="btn btn-gamified text-white font-medium hover:scale-105 transition inline-flex items-center gap-2"
                             >
                                 Explore All Contests <span>→</span>
                             </Link>
-                        </div>
+                        </motion.div>
                     </div>
-                </section>
+                </motion.section>
             )}
 
-            <TopCreatorsCarousel />
+            {/* Top Creators Carousel - Fade Right */}
+            <motion.div
+                ref={(el) => setRef("topCreators", el)}
+                initial="hidden"
+                animate={inView.topCreators ? "visible" : "hidden"}
+                variants={fadeInRight}
+            >
+                <TopCreatorsCarousel />
+            </motion.div>
+
             {/* ================= WINNERS SECTION ================= */}
-            <section className="py-20 px-4 relative overflow-hidden">
+            <motion.section 
+                ref={(el) => setRef("winners", el)}
+                initial="hidden"
+                animate={inView.winners ? "visible" : "hidden"}
+                variants={fadeInUp}
+                className="py-20 px-4 relative overflow-hidden"
+            >
                 <div className="max-w-7xl mx-auto">
-                    {/* Header */}
-                    <div className="flex flex-col items-center justify-center mb-12">
-                        <div className="inline-flex items-center gap-3 mb-4">
+                    <motion.div 
+                        variants={staggerContainer}
+                        className="flex flex-col items-center justify-center mb-12"
+                    >
+                        <motion.div variants={staggerItem} className="inline-flex items-center gap-3 mb-4">
                             <span className="text-5xl">🏆</span>
                             <h2 className="text-4xl md:text-5xl font-bold">
                                 <span className="bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
                                     Top Winners
                                 </span>
                             </h2>
-                        </div>
-                        <p className="text-[var(--text-secondary)] max-w-2xl mx-auto">
+                        </motion.div>
+                        <motion.p variants={staggerItem} className="text-[var(--text-secondary)] max-w-2xl mx-auto">
                             Celebrating our most successful contestants and their amazing achievements
-                        </p>
-                    </div>
+                        </motion.p>
+                    </motion.div>
 
-                    {/* Winners Grid */}
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <motion.div 
+                        variants={staggerContainer}
+                        className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+                    >
                         {winners.map((winner, index) => (
                             <motion.div
                                 key={index}
-                                initial={{ opacity: 0, y: 30 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.1 }}
+                                variants={staggerItem}
                                 whileHover={{ y: -8, scale: 1.02 }}
                                 className={`group relative rounded-2xl overflow-hidden bg-gradient-to-b from-white/5 to-white/0 backdrop-blur-xl border transition-all duration-300 ${index === 0
                                     ? "border-yellow-400/50 shadow-[0_0_30px_rgba(234,179,8,0.3)] ring-2 ring-yellow-400/50"
                                     : "border-white/10 hover:border-yellow-400/30"
                                     }`}
                             >
-                                {/* Winner Badge for Top 3 */}
                                 {index === 0 && (
                                     <div className="absolute top-4 left-4 z-10">
                                         <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-4 py-2 rounded-full font-bold shadow-lg flex items-center gap-2">
@@ -500,7 +637,6 @@ const Home = () => {
                                     </div>
                                 )}
 
-                                {/* Winner Image */}
                                 <div className="relative h-64 overflow-hidden">
                                     <motion.img
                                         src={winner.winnerImage}
@@ -508,8 +644,6 @@ const Home = () => {
                                         alt={winner.winnerName}
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
-
-                                    {/* Prize Badge */}
                                     <div className="absolute bottom-4 right-4 z-10">
                                         <div className="bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-2">
                                             <span className="text-yellow-400">💰</span>
@@ -518,28 +652,20 @@ const Home = () => {
                                     </div>
                                 </div>
 
-                                {/* Winner Info */}
                                 <div className="p-6 text-center space-y-3">
-                                    {/* Winner Name */}
                                     <h3 className="text-2xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
                                         {winner.winnerName}
                                     </h3>
-
-                                    {/* Contest Title */}
                                     <div className="flex items-center justify-center gap-2 text-sm text-[var(--text-secondary)]">
                                         <span>🏆</span>
                                         <p>{winner.title}</p>
                                     </div>
-
-                                    {/* Contest Type Badge */}
                                     {winner.contestType && (
                                         <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-purple-500/20 text-purple-400 text-xs">
                                             <span>🎯</span>
                                             <span>{winner.contestType}</span>
                                         </div>
                                     )}
-
-                                    {/* Winning Stats */}
                                     <div className="pt-3 space-y-2">
                                         <div className="flex items-center justify-center gap-2 text-sm">
                                             <span className="text-yellow-400">⭐</span>
@@ -552,81 +678,80 @@ const Home = () => {
                                             </div>
                                         )}
                                     </div>
-
-                                    {/* Decorative Line */}
                                     <div className="w-20 h-0.5 bg-gradient-to-r from-yellow-400 to-orange-500 mx-auto mt-4"></div>
                                 </div>
                             </motion.div>
                         ))}
-                    </div>
+                    </motion.div>
 
-                    {/* View More Link (if there are more winners) */}
                     {winners.length >= 6 && (
-                        <div className="text-center mt-12">
+                        <motion.div 
+                            variants={staggerItem}
+                            className="text-center mt-12"
+                        >
                             <Link to="/leaderboard" className="btn btn-gamified inline-flex items-center gap-2">
                                 View Full Leaderboard <span>→</span>
                             </Link>
-                        </div>
+                        </motion.div>
                     )}
                 </div>
-            </section>
+            </motion.section>
+
             {/* ================= FEATURES SECTION ================= */}
-            <section className="py-20 bg-[var(--bg-secondary)] relative overflow-hidden">
-                {/* Background Decoration */}
+            <motion.section 
+                ref={(el) => setRef("features", el)}
+                initial="hidden"
+                animate={inView.features ? "visible" : "hidden"}
+                variants={fadeInUp}
+                className="py-20 bg-[var(--bg-secondary)] relative overflow-hidden"
+            >
                 <div className="absolute inset-0 opacity-30">
                     <div className="absolute top-0 left-0 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl"></div>
                     <div className="absolute bottom-0 right-0 w-72 h-72 bg-blue-500/20 rounded-full blur-3xl"></div>
                 </div>
 
                 <div className="max-w-7xl mx-auto px-4 relative z-10">
-                    {/* Header */}
-                    <div className="flex flex-col justify-center items-center mb-16">
-                        <div className="inline-flex items-center gap-3 mb-4">
+                    <motion.div 
+                        variants={staggerContainer}
+                        className="flex flex-col justify-center items-center mb-16"
+                    >
+                        <motion.div variants={staggerItem} className="inline-flex items-center gap-3 mb-4">
                             <span className="text-5xl">✨</span>
                             <h2 className="text-4xl md:text-5xl font-bold">
                                 <span className="bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] bg-clip-text text-transparent">
                                     Why Choose Us
                                 </span>
                             </h2>
-                        </div>
-                        <p className="text-[var(--text-secondary)] max-w-2xl mx-auto">
+                        </motion.div>
+                        <motion.p variants={staggerItem} className="text-[var(--text-secondary)] max-w-2xl mx-auto">
                             Join thousands of creators who have found success on our platform
-                        </p>
-                    </div>
+                        </motion.p>
+                    </motion.div>
 
-                    {/* Features Grid */}
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <motion.div 
+                        variants={staggerContainer}
+                        className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+                    >
                         {features.map((feature, index) => (
                             <motion.div
                                 key={index}
-                                initial={{ opacity: 0, y: 30 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.1 }}
+                                variants={staggerItem}
                                 whileHover={{ y: -8 }}
                                 className="group relative p-8 rounded-2xl bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-sm border border-white/10 hover:border-[var(--accent-primary)]/40 transition-all duration-300"
                             >
-                                {/* Animated Background Gradient */}
                                 <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}></div>
-
-                                {/* Icon Container */}
                                 <div className={`relative mb-6 inline-block`}>
                                     <div className={`absolute inset-0 bg-gradient-to-r ${feature.color} rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity duration-300`}></div>
                                     <div className={`relative w-16 h-16 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform duration-300`}>
                                         <span className="text-3xl">{feature.icon}</span>
                                     </div>
                                 </div>
-
-                                {/* Title */}
                                 <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-3 group-hover:text-[var(--accent-primary)] transition-colors duration-300">
                                     {feature.title}
                                 </h3>
-
-                                {/* Description */}
                                 <p className="text-[var(--text-secondary)] leading-relaxed mb-6">
                                     {feature.description}
                                 </p>
-
-                                {/* Learn More Link */}
                                 <motion.div
                                     whileHover={{ x: 5 }}
                                     className="inline-flex items-center gap-2 text-sm text-[var(--accent-primary)] font-medium cursor-pointer"
@@ -634,50 +759,17 @@ const Home = () => {
                                     <span>Learn More</span>
                                     <span className="group-hover:translate-x-1 transition-transform">→</span>
                                 </motion.div>
-
-                                {/* Decorative Element */}
                                 <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-20 transition-opacity duration-300">
                                     <div className="w-16 h-16 bg-white rounded-full blur-xl"></div>
                                 </div>
                             </motion.div>
                         ))}
-                    </div>
-
-                    {/* Stats Counter Section */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.6 }}
-                        className="mt-20 pt-8 border-t border-white/10"
-                    >
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                            <div className="text-center">
-                                <div className="text-3xl font-bold text-[var(--accent-primary)]">10K+</div>
-                                <div className="text-sm text-[var(--text-muted)] mt-2">Active Users</div>
-                            </div>
-                            <div className="text-center">
-                                <div className="text-3xl font-bold text-[var(--accent-primary)]">500+</div>
-                                <div className="text-sm text-[var(--text-muted)] mt-2">Contests Completed</div>
-                            </div>
-                            <div className="text-center">
-                                <div className="text-3xl font-bold text-[var(--accent-primary)]">$50K+</div>
-                                <div className="text-sm text-[var(--text-muted)] mt-2">Prize Money Paid</div>
-                            </div>
-                            <div className="text-center">
-                                <div className="text-3xl font-bold text-[var(--accent-primary)]">98%</div>
-                                <div className="text-sm text-[var(--text-muted)] mt-2">Satisfaction Rate</div>
-                            </div>
-                        </div>
                     </motion.div>
-
-                    {/* CTA Section */}
                     <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.7 }}
+                        variants={staggerContainer}
                         className="mt-16 text-center"
                     >
-                        <div className="inline-flex flex-col sm:flex-row gap-4">
+                        <motion.div variants={staggerItem} className="inline-flex flex-col sm:flex-row gap-4">
                             <Link to="/all-contest">
                                 <motion.button
                                     whileHover={{ scale: 1.05 }}
@@ -696,10 +788,10 @@ const Home = () => {
                                     Become a Creator
                                 </motion.button>
                             </Link>
-                        </div>
+                        </motion.div>
                     </motion.div>
                 </div>
-            </section>
+            </motion.section>
         </div>
     );
 };

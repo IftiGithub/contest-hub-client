@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Link } from "react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getContests } from "../../api/contest_api";
 import { CreatorCardSkeleton } from "./LoadingSkeleton";
 import { EmptyState } from "./EmptyState";
@@ -11,8 +11,56 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
+// Counter animation hook
+const useCountAnimation = (targetValue, duration = 2000, trigger = true) => {
+    const [count, setCount] = useState(0);
+
+    useEffect(() => {
+        // Only animate when trigger is true
+        if (!trigger) {
+            setCount(0);
+            return;
+        }
+
+        if (targetValue === 0 || !targetValue) {
+            setCount(0);
+            return;
+        }
+
+        let startTime;
+        let animationFrame;
+
+        const animate = (currentTime) => {
+            if (!startTime) startTime = currentTime;
+            const progress = Math.min((currentTime - startTime) / duration, 1);
+            const easedProgress = 1 - Math.pow(1 - progress, 3);
+            const currentCount = Math.floor(easedProgress * targetValue);
+            setCount(currentCount);
+
+            if (progress < 1) {
+                animationFrame = requestAnimationFrame(animate);
+            } else {
+                setCount(targetValue);
+            }
+        };
+
+        animationFrame = requestAnimationFrame(animate);
+
+        return () => {
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+            }
+        };
+    }, [targetValue, duration, trigger]);
+
+    return count;
+};
+
 const TopCreatorsCarousel = () => {
     const [topCreators, setTopCreators] = useState([]);
+    const [hasAnimated, setHasAnimated] = useState(false);
+    const sectionRef = useRef(null);
+    const statsRef = useRef(null);
 
     // Fetch ALL contests (not just approved)
     const { data: allContests = [], isLoading, error } = useQuery({
@@ -29,7 +77,7 @@ const TopCreatorsCarousel = () => {
                 // Group contests by creator
                 const creatorMap = {};
                 const creatorEmails = new Set();
-                
+
                 allContests.forEach(contest => {
                     if (contest.creatorEmail) {
                         creatorEmails.add(contest.creatorEmail);
@@ -47,12 +95,12 @@ const TopCreatorsCarousel = () => {
                                 joinDate: contest.createdAt || new Date(),
                             };
                         }
-                        
+
                         // Update stats
                         creatorMap[contest.creatorEmail].contestCount += 1;
                         creatorMap[contest.creatorEmail].totalPrize += contest.prizeMoney || 0;
                         creatorMap[contest.creatorEmail].totalParticipants += contest.participants?.length || 0;
-                        
+
                         // Track contest statuses
                         if (contest.status === "completed") {
                             creatorMap[contest.creatorEmail].completedContests += 1;
@@ -61,11 +109,11 @@ const TopCreatorsCarousel = () => {
                         } else if (contest.status === "approved") {
                             creatorMap[contest.creatorEmail].approvedContests += 1;
                         }
-                        
+
                         // Calculate revenue (assuming each participant paid entry fee)
                         const entryFee = contest.price || 0;
                         creatorMap[contest.creatorEmail].totalRevenue += (contest.participants?.length || 0) * entryFee;
-                        
+
                         // Track earliest join date
                         if (contest.createdAt && new Date(contest.createdAt) < new Date(creatorMap[contest.creatorEmail].joinDate)) {
                             creatorMap[contest.creatorEmail].joinDate = contest.createdAt;
@@ -80,9 +128,9 @@ const TopCreatorsCarousel = () => {
                             .then(res => res.json())
                             .catch(() => null)
                     );
-                    
+
                     const usersData = await Promise.all(userPromises);
-                    
+
                     // Create a map of email to user data
                     const userMap = {};
                     usersData.forEach(user => {
@@ -90,13 +138,13 @@ const TopCreatorsCarousel = () => {
                             userMap[user.email] = user;
                         }
                     });
-                    
+
                     // Merge user data (including avatar) with creator stats
                     const sorted = Object.values(creatorMap)
                         .map(creator => ({
                             ...creator,
-                            avatar: userMap[creator.email]?.photoURL || 
-                                    `https://ui-avatars.com/api/?name=${encodeURIComponent(creator.name)}&background=8B5CF6&color=fff&bold=true`,
+                            avatar: userMap[creator.email]?.photoURL ||
+                                `https://ui-avatars.com/api/?name=${encodeURIComponent(creator.name)}&background=8B5CF6&color=fff&bold=true`,
                             name: userMap[creator.email]?.name || creator.name,
                             bio: userMap[creator.email]?.bio || "Creative professional sharing amazing contests",
                             location: userMap[creator.email]?.location || "Global",
@@ -104,7 +152,7 @@ const TopCreatorsCarousel = () => {
                         }))
                         .sort((a, b) => b.contestCount - a.contestCount)
                         .slice(0, 10); // Show top 10 creators
-                    
+
                     setTopCreators(sorted);
                 } catch (error) {
                     console.error("Error fetching user avatars:", error);
@@ -126,9 +174,54 @@ const TopCreatorsCarousel = () => {
         fetchCreatorAvatars();
     }, [allContests]);
 
+    // Intersection Observer to trigger counter animation when stats section is visible
+    useEffect(() => {
+        // Don't set up observer if still loading or no data
+        if (isLoading || topCreators.length === 0) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    // Start animation when stats section becomes visible
+                    if (entry.isIntersecting && !hasAnimated) {
+                        console.log("Stats section visible, starting animation");
+                        setHasAnimated(true);
+                    }
+                });
+            },
+            {
+                threshold: 0.3, // Trigger when 30% of the stats section is visible
+                rootMargin: "0px 0px -100px 0px" // Slightly adjust trigger point
+            }
+        );
+
+        // Observe the stats section
+        if (statsRef.current) {
+            observer.observe(statsRef.current);
+        }
+
+        return () => {
+            if (statsRef.current) {
+                observer.unobserve(statsRef.current);
+            }
+        };
+    }, [isLoading, topCreators.length, hasAnimated]);
+
+    // Calculate summary stats
+    const totalCreators = topCreators.length;
+    const totalContests = topCreators.reduce((sum, c) => sum + c.contestCount, 0);
+    const totalPrizePool = topCreators.reduce((sum, c) => sum + c.totalPrize, 0);
+    const totalParticipants = topCreators.reduce((sum, c) => sum + c.totalParticipants, 0);
+
+    // Animated values - only animate when hasAnimated is true
+    const animatedTotalCreators = useCountAnimation(totalCreators, 1500, hasAnimated);
+    const animatedTotalContests = useCountAnimation(totalContests, 1500, hasAnimated);
+    const animatedTotalPrizePool = useCountAnimation(totalPrizePool, 1500, hasAnimated);
+    const animatedTotalParticipants = useCountAnimation(totalParticipants, 1500, hasAnimated);
+
     // Calculate rank badge and color
     const getRankInfo = (index) => {
-        switch(index) {
+        switch (index) {
             case 0:
                 return { badge: "👑", color: "from-yellow-500 to-orange-500", text: "Top Creator" };
             case 1:
@@ -154,7 +247,7 @@ const TopCreatorsCarousel = () => {
     }
 
     return (
-        <section className="py-20 px-4 relative overflow-hidden">
+        <section ref={sectionRef} className="py-20 px-4 relative overflow-hidden">
             {/* Background Decoration */}
             <div className="absolute inset-0 opacity-30">
                 <div className="absolute top-0 left-0 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"></div>
@@ -218,6 +311,10 @@ const TopCreatorsCarousel = () => {
                     >
                         {topCreators.map((creator, index) => {
                             const rankInfo = getRankInfo(index);
+                            const successRate = creator.contestCount > 0
+                                ? Math.round((creator.completedContests / creator.contestCount) * 100)
+                                : 0;
+
                             return (
                                 <SwiperSlide key={creator.email}>
                                     <motion.div
@@ -262,7 +359,7 @@ const TopCreatorsCarousel = () => {
                                             <h3 className="text-xl font-bold text-[var(--text-primary)] mb-1 group-hover:text-[var(--accent-primary)] transition">
                                                 {creator.name}
                                             </h3>
-                                            
+
                                             {/* Role Badge */}
                                             <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-purple-500/20 text-purple-400 text-xs mb-3">
                                                 <span>🏆</span>
@@ -307,7 +404,7 @@ const TopCreatorsCarousel = () => {
                                                 <div className="bg-[var(--accent-secondary)]/10 rounded-lg p-2 transition-all group-hover:bg-[var(--accent-secondary)]/20">
                                                     <p className="text-xs text-[var(--text-secondary)]">Prize Money</p>
                                                     <p className="text-xl font-bold text-[var(--accent-secondary)]">
-                                                        ${creator.totalPrize}
+                                                        ${creator.totalPrize.toLocaleString()}
                                                     </p>
                                                 </div>
                                             </div>
@@ -317,56 +414,37 @@ const TopCreatorsCarousel = () => {
                                                 <div className="bg-white/5 rounded-lg p-2">
                                                     <p className="text-xs text-[var(--text-secondary)]">Participants</p>
                                                     <p className="text-lg font-semibold text-[var(--text-primary)]">
-                                                        {creator.totalParticipants}
+                                                        {creator.totalParticipants.toLocaleString()}
                                                     </p>
                                                 </div>
                                                 <div className="bg-white/5 rounded-lg p-2">
                                                     <p className="text-xs text-[var(--text-secondary)]">Revenue</p>
                                                     <p className="text-lg font-semibold text-green-400">
-                                                        ${creator.totalRevenue || 0}
+                                                        ${(creator.totalRevenue || 0).toLocaleString()}
                                                     </p>
                                                 </div>
                                             </div>
 
-                                            {/* Success Rate Bar */}
+                                            {/* Success Rate Bar with proper background */}
                                             {creator.contestCount > 0 && (
                                                 <div className="mb-4">
                                                     <div className="flex justify-between text-xs text-[var(--text-muted)] mb-1">
                                                         <span>Success Rate</span>
-                                                        <span>{Math.round((creator.completedContests / creator.contestCount) * 100)}%</span>
+                                                        <span className="font-semibold text-[var(--accent-primary)]">{successRate}%</span>
                                                     </div>
-                                                    <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+                                                    <div className="w-full bg-gray-700/50 rounded-full h-2 overflow-hidden">
                                                         <motion.div
                                                             initial={{ width: 0 }}
-                                                            animate={{ width: `${(creator.completedContests / creator.contestCount) * 100}%` }}
+                                                            animate={{ width: `${successRate}%` }}
                                                             transition={{ duration: 1, delay: 0.5 }}
-                                                            className={`bg-gradient-to-r ${rankInfo.color} h-full rounded-full`}
-                                                        ></motion.div>
+                                                            className={`bg-gradient-to-r ${rankInfo.color} h-full rounded-full relative`}
+                                                        >
+                                                            {/* Shimmer effect on hover */}
+                                                            <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+                                                        </motion.div>
                                                     </div>
                                                 </div>
                                             )}
-
-                                            {/* CTA Buttons */}
-{/*                                             <div className="flex gap-2">
-                                                <Link to={`/creator/${creator.email}`} className="flex-1">
-                                                    <motion.button
-                                                        whileHover={{ scale: 1.02 }}
-                                                        whileTap={{ scale: 0.98 }}
-                                                        className="btn-gamified w-full text-sm"
-                                                    >
-                                                        View Profile
-                                                    </motion.button>
-                                                </Link>
-                                                <Link to={`/contests?creator=${creator.email}`} className="flex-1">
-                                                    <motion.button
-                                                        whileHover={{ scale: 1.02 }}
-                                                        whileTap={{ scale: 0.98 }}
-                                                        className="px-3 py-2 rounded-xl bg-transparent border border-[var(--accent-primary)] text-[var(--accent-primary)] text-sm font-medium hover:bg-[var(--accent-primary)]/10 transition-all duration-300 w-full"
-                                                    >
-                                                        Contests
-                                                    </motion.button>
-                                                </Link>
-                                            </div> */}
                                         </div>
                                     </motion.div>
                                 </SwiperSlide>
@@ -375,36 +453,42 @@ const TopCreatorsCarousel = () => {
                     </Swiper>
                 )}
 
-                {/* Stats Summary */}
+                {/* Stats Summary with Animated Counters - Add ref here */}
                 {topCreators.length > 0 && (
                     <motion.div
+                        ref={statsRef}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5 }}
                         className="mt-12 pt-8 border-t border-white/10"
                     >
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-                            <div>
-                                <div className="text-2xl font-bold text-[var(--accent-primary)]">{topCreators.length}</div>
-                                <div className="text-xs text-[var(--text-muted)] mt-1">Top Creators</div>
-                            </div>
-                            <div>
-                                <div className="text-2xl font-bold text-[var(--accent-primary)]">
-                                    {topCreators.reduce((sum, c) => sum + c.contestCount, 0)}
+                        <div className="flex flex-col justify-center items-center gap-3">
+                            <div className=" text-4xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">Summary Stats</div>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-5 p-6 rounded-2xl bg-gradient-to-r from-[var(--accent-primary)]/10 to-[var(--accent-secondary)]/10 border border-[var(--accent-primary)]/20 text-center w-full">
+                                <div className="group">
+                                    <div className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                                        {hasAnimated ? animatedTotalCreators : 0}
+                                    </div>
+                                    <div className="text-xs text-[var(--text-muted)] mt-1">Top Creators</div>
                                 </div>
-                                <div className="text-xs text-[var(--text-muted)] mt-1">Total Contests</div>
-                            </div>
-                            <div>
-                                <div className="text-2xl font-bold text-[var(--accent-primary)]">
-                                    ${topCreators.reduce((sum, c) => sum + c.totalPrize, 0).toLocaleString()}
+                                <div className="group">
+                                    <div className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                                        {hasAnimated ? animatedTotalContests : 0}
+                                    </div>
+                                    <div className="text-xs text-[var(--text-muted)] mt-1">Total Contests</div>
                                 </div>
-                                <div className="text-xs text-[var(--text-muted)] mt-1">Total Prize Pool</div>
-                            </div>
-                            <div>
-                                <div className="text-2xl font-bold text-[var(--accent-primary)]">
-                                    {topCreators.reduce((sum, c) => sum + c.totalParticipants, 0).toLocaleString()}
+                                <div className="group">
+                                    <div className="text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+                                        ${hasAnimated ? animatedTotalPrizePool.toLocaleString() : "0"}
+                                    </div>
+                                    <div className="text-xs text-[var(--text-muted)] mt-1">Total Prize Pool</div>
                                 </div>
-                                <div className="text-xs text-[var(--text-muted)] mt-1">Total Participants</div>
+                                <div className="group">
+                                    <div className="text-3xl font-bold bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
+                                        {hasAnimated ? animatedTotalParticipants.toLocaleString() : "0"}
+                                    </div>
+                                    <div className="text-xs text-[var(--text-muted)] mt-1">Total Participants</div>
+                                </div>
                             </div>
                         </div>
                     </motion.div>

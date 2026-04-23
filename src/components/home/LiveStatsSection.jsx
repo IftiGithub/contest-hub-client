@@ -1,17 +1,23 @@
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { getApprovedContests } from "../../api/contest_api";
 import { StatCard } from "./StatCard";
 import { StatCardSkeleton } from "./LoadingSkeleton";
 
-// Counter animation hook
-const useCountAnimation = (targetValue, duration = 2000) => {
+// Counter animation hook with Intersection Observer
+const useCountAnimation = (targetValue, duration = 2000, trigger = true) => {
     const [count, setCount] = useState(0);
+    const [hasAnimated, setHasAnimated] = useState(false);
 
     useEffect(() => {
-        if (targetValue === 0) {
+        // Don't animate if not triggered or already animated
+        if (!trigger || hasAnimated) return;
+
+        // Handle zero or invalid values
+        if (targetValue === 0 || !targetValue) {
             setCount(0);
+            setHasAnimated(true);
             return;
         }
 
@@ -21,12 +27,17 @@ const useCountAnimation = (targetValue, duration = 2000) => {
         const animate = (currentTime) => {
             if (!startTime) startTime = currentTime;
             const progress = Math.min((currentTime - startTime) / duration, 1);
-            const easedProgress = 1 - Math.pow(1 - progress, 3); // Cubic ease out
+            // Cubic ease out for smooth deceleration
+            const easedProgress = 1 - Math.pow(1 - progress, 3);
             const currentCount = Math.floor(easedProgress * targetValue);
             setCount(currentCount);
 
             if (progress < 1) {
                 animationFrame = requestAnimationFrame(animate);
+            } else {
+                // Ensure final value is exactly the target
+                setCount(targetValue);
+                setHasAnimated(true);
             }
         };
 
@@ -37,12 +48,15 @@ const useCountAnimation = (targetValue, duration = 2000) => {
                 cancelAnimationFrame(animationFrame);
             }
         };
-    }, [targetValue, duration]);
+    }, [targetValue, duration, trigger, hasAnimated]);
 
     return count;
 };
 
 const LiveStatsSection = () => {
+    const [shouldAnimate, setShouldAnimate] = useState(false);
+    const sectionRef = useRef(null);
+    
     const { data: allContests = [], isLoading } = useQuery({
         queryKey: ["statsContests"],
         queryFn: getApprovedContests,
@@ -61,21 +75,44 @@ const LiveStatsSection = () => {
         return !Number.isNaN(deadline.getTime()) && deadline <= new Date();
     }).length;
 
-    // Animated values
-    const animatedActiveContests = useCountAnimation(activeContests);
-    const animatedTotalParticipants = useCountAnimation(totalParticipants);
-    const animatedTotalPrizeMoney = useCountAnimation(totalPrizeMoney);
-    const animatedCompletedContests = useCountAnimation(completedContests);
+    // Intersection Observer to trigger animation when section is visible
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && !shouldAnimate && !isLoading) {
+                    setShouldAnimate(true);
+                }
+            },
+            { threshold: 0.2, triggerOnce: true } // Trigger once when 20% visible
+        );
 
+        if (sectionRef.current) {
+            observer.observe(sectionRef.current);
+        }
+
+        return () => {
+            if (sectionRef.current) {
+                observer.unobserve(sectionRef.current);
+            }
+        };
+    }, [isLoading, shouldAnimate]);
+
+    // Start animation only when section is visible
+    const animatedActiveContests = useCountAnimation(activeContests, 2000, shouldAnimate);
+    const animatedTotalParticipants = useCountAnimation(totalParticipants, 2000, shouldAnimate);
+    const animatedTotalPrizeMoney = useCountAnimation(totalPrizeMoney, 2000, shouldAnimate);
+    const animatedCompletedContests = useCountAnimation(completedContests, 2000, shouldAnimate);
+
+    // Use animated values when animation is triggered, otherwise show zeros
     const stats = {
-        activeContests: animatedActiveContests,
-        totalParticipants: animatedTotalParticipants,
-        totalPrizeMoney: animatedTotalPrizeMoney,
-        completedContests: animatedCompletedContests,
+        activeContests: shouldAnimate ? animatedActiveContests : 0,
+        totalParticipants: shouldAnimate ? animatedTotalParticipants : 0,
+        totalPrizeMoney: shouldAnimate ? animatedTotalPrizeMoney : 0,
+        completedContests: shouldAnimate ? animatedCompletedContests : 0,
     };
 
     return (
-        <section className="py-20 px-4 bg-[var(--bg-secondary)]">
+        <section ref={sectionRef} className="py-20 px-4 bg-[var(--bg-secondary)]">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
                 <motion.div
@@ -115,14 +152,14 @@ const LiveStatsSection = () => {
                             label="Active Contests"
                             value={stats.activeContests}
                             isAnimated={true}
-                            bgImage="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop" // Abstract contest/competition
+                            bgImage="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
                         />
                         <StatCard
                             icon="👥"
                             label="Total Participants"
                             value={stats.totalParticipants}
                             isAnimated={true}
-                            bgImage="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=400&h=300&fit=crop" // Team/people collaborating
+                            bgImage="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=400&h=300&fit=crop"
                         />
                         <StatCard
                             icon="💰"
@@ -130,14 +167,14 @@ const LiveStatsSection = () => {
                             value={stats.totalPrizeMoney}
                             suffix="+"
                             isAnimated={true}
-                            bgImage="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=400&h=300&fit=crop" // Money/wealth concept
+                            bgImage="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=400&h=300&fit=crop"
                         />
                         <StatCard
                             icon="🏆"
                             label="Contests Completed"
                             value={stats.completedContests}
                             isAnimated={true}
-                            bgImage="https://images.unsplash.com/photo-1511994298241-608e28f14fde?w=400&h=300&fit=crop" // Trophy/award
+                            bgImage="https://images.unsplash.com/photo-1511994298241-608e28f14fde?w=400&h=300&fit=crop"
                         />
                     </motion.div>
                 )}
