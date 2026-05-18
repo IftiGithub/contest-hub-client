@@ -8,7 +8,7 @@ const TopCreators = () => {
   // Fetch creators
   const { data, isLoading, isError } = useQuery({
     queryKey: ["topCreators"],
-    queryFn: () => secureFetch(`https://contest-hub-server-ashen-two.vercel.app/top-creators`),
+    queryFn: () => secureFetch(`https://contest-hub-server.onrender.com/top-creators`),
   });
 
   if (isLoading) return <Loading />;

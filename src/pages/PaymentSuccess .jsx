@@ -20,7 +20,7 @@ const PaymentSuccess = () => {
 
     const confirmPayment = async () => {
       try {
-        const res = await fetch("https://contest-hub-server-ashen-two.vercel.app/payments/confirm", {
+        const res = await fetch("https://contest-hub-server.onrender.com/payments/confirm", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

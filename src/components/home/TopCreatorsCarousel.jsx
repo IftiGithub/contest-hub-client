@@ -124,7 +124,7 @@ const TopCreatorsCarousel = () => {
                 // Fetch latest user info (including avatar) from your users endpoint
                 try {
                     const userPromises = Array.from(creatorEmails).map(email =>
-                        fetch(`https://contest-hub-server-ashen-two.vercel.app/users/${email}`)
+                        fetch(`https://contest-hub-server.onrender.com/users/${email}`)
                             .then(res => res.json())
                             .catch(() => null)
                     );

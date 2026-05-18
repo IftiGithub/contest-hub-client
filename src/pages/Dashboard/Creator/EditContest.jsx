@@ -31,7 +31,7 @@ const EditContest = () => {
             try {
                 setFetchError(false);
                 // secureFetch returns parsed data directly
-                const data = await secureFetch(`https://contest-hub-server-ashen-two.vercel.app/contests/${id}`);
+                const data = await secureFetch(`https://contest-hub-server.onrender.com/contests/${id}`);
                 
                 console.log("Fetched contest data:", data);
                 
@@ -96,7 +96,7 @@ const EditContest = () => {
 
             // IMPORTANT: Don't stringify the body - secureFetch does it for you!
             // Don't add Content-Type header - secureFetch adds it automatically!
-            const result = await secureFetch(`https://contest-hub-server-ashen-two.vercel.app/contests/${id}`, {
+            const result = await secureFetch(`https://contest-hub-server.onrender.com/contests/${id}`, {
                 method: "PATCH",
                 body: updatedData, // Pass the object directly, not stringified
             });

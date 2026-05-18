@@ -1,6 +1,6 @@
 import { secureFetch } from "../api/secureFetch";
 
-const API = import.meta.env.VITE_API_BASE_URL || "https://contest-hub-server-ashen-two.vercel.app";
+const API = import.meta.env.VITE_API_BASE_URL || "https://contest-hub-server.onrender.com";
 
 // ===== User Contests =====
 

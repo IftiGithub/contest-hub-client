@@ -16,7 +16,7 @@ const AddContest = () => {
 
   const addContestMutation = useMutation({
     mutationFn: (data) =>
-      secureFetch("https://contest-hub-server-ashen-two.vercel.app/contests", { method: "POST", body: data }),
+      secureFetch("https://contest-hub-server.onrender.com/contests", { method: "POST", body: data }),
     onSuccess: () => {
       toast.success("Contest added! Waiting for admin approval.");
       reset();

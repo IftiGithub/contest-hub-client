@@ -23,7 +23,7 @@ const ContestDetails = () => {
   // Fetch contest
   const { data: contest, isLoading, refetch } = useQuery({
     queryKey: ["contest", id],
-    queryFn: () => secureFetch(`https://contest-hub-server-ashen-two.vercel.app/contests/${id}`),
+    queryFn: () => secureFetch(`https://contest-hub-server.onrender.com/contests/${id}`),
     enabled: !!id,
   });
 
@@ -126,7 +126,7 @@ const ContestDetails = () => {
     }
 
     try {
-      const data = await secureFetch(`https://contest-hub-server-ashen-two.vercel.app/create-checkout-session`, { method: "POST", body: { contestId: id } });
+      const data = await secureFetch(`https://contest-hub-server.onrender.com/create-checkout-session`, { method: "POST", body: { contestId: id } });
       if (data?.url) window.location.href = data.url;
       else toast.error("Unable to start payment");
     } catch (err) {
@@ -148,7 +148,7 @@ const ContestDetails = () => {
 
     setIsSubmitting(true);
     try {
-      await secureFetch(`https://contest-hub-server-ashen-two.vercel.app/contests/${id}/submit-task`, { method: "POST", body: { taskLink } });
+      await secureFetch(`https://contest-hub-server.onrender.com/contests/${id}/submit-task`, { method: "POST", body: { taskLink } });
       toast.success("Task submitted successfully!");
       setIsModalOpen(false);
       setTaskLink("");
